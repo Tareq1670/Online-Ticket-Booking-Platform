@@ -10,6 +10,7 @@ import {
     MdDeleteOutline,
     MdAccessTime,
 } from "react-icons/md";
+import { Button } from "@heroui/react";
 
 const transportIcons = {
     Bus: FaBus,
@@ -157,13 +158,14 @@ const MyAddedTicketCard = ({
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
                     {disableActions ? (
-                        <button
+                        <Button
+                        variant="none"
                             disabled
-                            className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-zinc-200 font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500"
+                            className="flex h-11  w-auto items-center justify-center gap-2 rounded-2xl bg-zinc-200 font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500"
                         >
                             <MdOutlineModeEdit size={18} />
                             Update
-                        </button>
+                        </Button>
                     ) : (
                         <Link
                             href={`/dashboard/vendor/update-ticket/${ticketId}`}
@@ -174,10 +176,11 @@ const MyAddedTicketCard = ({
                         </Link>
                     )}
 
-                    <button
+                    <Button
+                        variant="none"
                         onClick={() => onDelete(ticketId)}
                         disabled={disableActions || deletingId === ticketId}
-                        className={`flex h-11 items-center justify-center gap-2 rounded-2xl font-semibold text-white transition ${
+                        className={`flex h-11 items-center justify-center gap-2 rounded-2xl font-semibold text-white transition w-auto ${
                             disableActions
                                 ? "cursor-not-allowed bg-rose-300 dark:bg-rose-900/40"
                                 : "bg-rose-500 hover:bg-rose-600"
@@ -185,7 +188,7 @@ const MyAddedTicketCard = ({
                     >
                         <MdDeleteOutline size={18} />
                         {deletingId === ticketId ? "Deleting..." : "Delete"}
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

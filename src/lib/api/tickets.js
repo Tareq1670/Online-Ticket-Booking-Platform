@@ -5,3 +5,8 @@ export const getMyAddedTickets = async(vendorId)=> {
         cache : "no-store"
     })
 }
+
+
+export const getSingleTickets = async(ticketId) =>{
+    return serverDataFetch(`/api/vendor/my-tickets/${ticketId}`)
+}
