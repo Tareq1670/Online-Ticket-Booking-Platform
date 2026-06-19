@@ -255,7 +255,7 @@ const Navbar = () => {
                             </div>
                         ) : (
                             <>
-                                <Link href={`dashboard/${user?.role}`}>
+                                <Link href={`dashboard/${user?.role}/profile`}>
                                     <Button
                                         variant="bordered"
                                         radius="lg"
@@ -341,7 +341,7 @@ const Navbar = () => {
                                 ...(!isLoading && user
                                     ? [
                                           {
-                                              path: `/dashboard/${user?.role}`,
+                                              path: `/dashboard/${user?.role}/profile`,
                                               label: "Dashboard",
                                               icon: BarsUnaligned,
                                           },
@@ -438,7 +438,7 @@ const Navbar = () => {
                         ) : (
                             <div className="space-y-1">
                                 <Link
-                                    href="/dashboard/profile"
+                                    href={`/dashboard/${user?.role}/profile`}
                                     className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-[15px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
                                 >
                                     <span className="p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">

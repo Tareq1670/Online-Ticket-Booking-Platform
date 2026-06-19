@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { getUser } from "@/lib/session";
 import DashboardWelcome from "@/components/Dashboard/DashboardWelcome";
+import { getUser } from "@/lib/core/session";
 
 export default async function DashboardPage() {
     const user = await getUser();
@@ -8,7 +8,6 @@ export default async function DashboardPage() {
     if (!user) {
         redirect("/login");
     }
-    console.log(user);
 
     return <DashboardWelcome user={user} />;
 }

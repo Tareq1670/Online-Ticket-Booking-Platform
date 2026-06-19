@@ -1,6 +1,6 @@
 
 import { headers } from "next/headers"
-import { auth } from "./auth"
+import { auth } from "../auth";
 
 export const getUser = async() => {
     const {user} = await auth.api.getSession({
@@ -8,7 +8,7 @@ export const getUser = async() => {
         
     })
     if(!user){
-        return null;
+        return null
     }
     return user;
 }

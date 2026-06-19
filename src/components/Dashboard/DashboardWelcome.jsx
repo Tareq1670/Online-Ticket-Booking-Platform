@@ -126,6 +126,7 @@ export default function DashboardWelcome({ user }) {
                             className={`h-28 w-28 text-4xl shadow-xl ring-4 ring-white dark:ring-zinc-900 ${config.ring}`}
                         >
                             <AvatarImage
+                            className="object-cover"
                                 src={user?.image || ""}
                                 alt={user?.name || "User"}
                             />
