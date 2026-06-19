@@ -75,7 +75,7 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
     const [errors, setErrors] = useState({});
     const [showErrors, setShowErrors] = useState(false);
 
-    // ✅ Field change handler
+
     const handleFieldChange = (field, value) => {
         setFormValues((prev) => ({ ...prev, [field]: value }));
 
@@ -106,7 +106,7 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
         }
     };
 
-    // ✅ Object থেকে validate করুন
+
     const validateForm = (values) => {
         const newErrors = {};
 
@@ -148,7 +148,7 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
 
         setShowErrors(true);
 
-        // ✅ formValues থেকে validate করুন
+
         const validationErrors = validateForm(formValues);
 
         if (Object.keys(validationErrors).length > 0) {
@@ -184,7 +184,6 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                     "";
             }
 
-            // ✅ formValues থেকে data নিন
             const ticketData = {
                 title: formValues.title,
                 from: formValues.from,

@@ -24,6 +24,7 @@ import { RiUploadCloud2Fill, RiVerifiedBadgeFill } from "react-icons/ri";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { imageUploader } from "@/lib/imageUpload";
 import { AddTicket } from "@/lib/actions/ticket";
+import { redirect, useRouter } from "next/navigation";
 
 const transportOptions = [
     { key: "Bus", label: "Bus", icon: FaBus },
@@ -57,6 +58,7 @@ const AddTicketPage = () => {
 
     const [errors, setErrors] = useState({});
     const [showErrors, setShowErrors] = useState(false);
+    const router = useRouter()
 
     const [livePreview, setLivePreview] = useState({
         title: "",
@@ -230,8 +232,8 @@ const AddTicketPage = () => {
                 });
                 setErrors({});
                 setShowErrors(false);
-
-                window.scrollTo({ top: 0, behavior: "smooth" });
+                router.push("/dashboard/vendor/my-tickets");
+                router.refresh();
             } else {
                 toast.error("Failed to add ticket", { id: loadingToast });
             }

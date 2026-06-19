@@ -10,7 +10,7 @@ import {
     MdDeleteOutline,
     MdAccessTime,
 } from "react-icons/md";
-import { Button } from "@heroui/react";
+import { AlertDialog, Button } from "@heroui/react";
 
 const transportIcons = {
     Bus: FaBus,
@@ -115,10 +115,7 @@ const MyAddedTicketCard = ({
                             }
                         />
                         <InfoBox label="Qty" value={ticket?.quantity || 0} />
-                        <InfoBox
-                            label="Sold"
-                            value={ticket?.soldQuantity || 0}
-                        />
+                        <InfoBox label="Sold" value={ticket?.soldQuantity || 0} />
                     </div>
 
                     <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2.5 text-sm text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
@@ -159,9 +156,9 @@ const MyAddedTicketCard = ({
                 <div className="mt-4 grid grid-cols-2 gap-3">
                     {disableActions ? (
                         <Button
-                        variant="none"
+                            variant="none"
                             disabled
-                            className="flex h-11  w-auto items-center justify-center gap-2 rounded-2xl bg-zinc-200 font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500"
+                            className="flex h-11 w-auto items-center justify-center gap-2 rounded-2xl bg-zinc-200 font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500"
                         >
                             <MdOutlineModeEdit size={18} />
                             Update
@@ -176,19 +173,65 @@ const MyAddedTicketCard = ({
                         </Link>
                     )}
 
-                    <Button
-                        variant="none"
-                        onClick={() => onDelete(ticketId)}
-                        disabled={disableActions || deletingId === ticketId}
-                        className={`flex h-11 items-center justify-center gap-2 rounded-2xl font-semibold text-white transition w-auto ${
-                            disableActions
-                                ? "cursor-not-allowed bg-rose-300 dark:bg-rose-900/40"
-                                : "bg-rose-500 hover:bg-rose-600"
-                        }`}
-                    >
-                        <MdDeleteOutline size={18} />
-                        {deletingId === ticketId ? "Deleting..." : "Delete"}
-                    </Button>
+                    {disableActions ? (
+                        <Button
+                            variant="none"
+                            disabled
+                            className="flex h-11 w-auto items-center justify-center gap-2 rounded-2xl bg-rose-300 font-semibold text-white dark:bg-rose-900/40"
+                        >
+                            <MdDeleteOutline size={18} />
+                            Delete
+                        </Button>
+                    ) : (
+                        <AlertDialog>
+                            <Button
+                                variant="none"
+                                className="flex h-11 w-auto items-center justify-center gap-2 rounded-2xl bg-rose-500 font-semibold text-white transition hover:bg-rose-600"
+                            >
+                                <MdDeleteOutline size={18} />
+                                Delete
+                            </Button>
+
+                            <AlertDialog.Backdrop>
+                                <AlertDialog.Container>
+                                    <AlertDialog.Dialog className="sm:max-w-[420px]">
+                                        <AlertDialog.CloseTrigger />
+                                        <AlertDialog.Header>
+                                            <AlertDialog.Icon status="danger" />
+                                            <AlertDialog.Heading>
+                                                Delete ticket permanently?
+                                            </AlertDialog.Heading>
+                                        </AlertDialog.Header>
+
+                                        <AlertDialog.Body>
+                                            <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                                                This will permanently delete{" "}
+                                                <strong>{ticket?.title}</strong>.
+                                                This action cannot be undone.
+                                            </p>
+                                        </AlertDialog.Body>
+
+                                        <AlertDialog.Footer>
+                                            <Button slot="close" variant="tertiary">
+                                                Cancel
+                                            </Button>
+
+                                            <Button
+                                                slot="close"
+                                                variant="danger"
+                                                isDisabled={deletingId === ticketId}
+                                                onPress={() => onDelete(ticketId)}
+                                            >
+                                                {deletingId === ticketId
+                                                    ? "Deleting..."
+                                                    : "Delete Ticket"}
+                                            </Button>
+                                        </AlertDialog.Footer>
+                                    </AlertDialog.Dialog>
+                                </AlertDialog.Container>
+                            </AlertDialog.Backdrop>
+                        </AlertDialog>
+                    )}
                 </div>
             </div>
         </div>
