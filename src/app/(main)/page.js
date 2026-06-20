@@ -1,3 +1,4 @@
+import AdvertisementSection from "@/components/shared/AdvertisementSection";
 import AboutTicketix from "@/components/shared/AboutTicketix";
 import BookingProcess from "@/components/shared/BookingProcess";
 import HeroSlider from "@/components/shared/Hero";
@@ -9,6 +10,7 @@ export default function Home() {
   return (
     <div className="mt-16">
       <HeroSlider/>
+      <AdvertisementSection/>
       <AboutTicketix/>
       <BookingProcess/>
       <MobileAppPromo/>

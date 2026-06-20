@@ -14,17 +14,19 @@ import {
     TextField,
 } from "@heroui/react";
 import { FaBus, FaTrain, FaPlane, FaShip } from "react-icons/fa";
-import { IoTicketSharp, IoWarning } from "react-icons/io5";
+import { IoTicketSharp, IoWarning, IoShieldCheckmark } from "react-icons/io5";
 import { MdLocationOn, MdArrowForward } from "react-icons/md";
 import { BsTagFill, BsCalendarEventFill, BsImageFill } from "react-icons/bs";
 import { AiFillStar } from "react-icons/ai";
-import { FaCircleCheck } from "react-icons/fa6";
+import { FaCircleCheck, FaBan } from "react-icons/fa6";
 import { HiArrowRight } from "react-icons/hi2";
 import { RiUploadCloud2Fill, RiVerifiedBadgeFill } from "react-icons/ri";
 import { TbCurrencyTaka } from "react-icons/tb";
+import { FiAlertTriangle } from "react-icons/fi";
 import { imageUploader } from "@/lib/imageUpload";
 import { AddTicket } from "@/lib/actions/ticket";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const transportOptions = [
     { key: "Bus", label: "Bus", icon: FaBus },
@@ -50,15 +52,18 @@ const AddTicketPage = () => {
     const { data: session } = authClient.useSession();
     const user = session?.user;
 
+    const isFraud =
+        user?.isFraud === true ||
+        String(user?.status || "").toLowerCase() === "fraud";
+
     const [isLoading, setIsLoading] = useState(false);
     const [selectedTransport, setSelectedTransport] = useState("Bus");
     const [selectedPerks, setSelectedPerks] = useState([]);
     const [imagePreview, setImagePreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);
-
     const [errors, setErrors] = useState({});
     const [showErrors, setShowErrors] = useState(false);
-    const router = useRouter()
+    const router = useRouter();
 
     const [livePreview, setLivePreview] = useState({
         title: "",
@@ -86,7 +91,7 @@ const AddTicketPage = () => {
         setSelectedPerks((prev) =>
             prev.includes(perk)
                 ? prev.filter((p) => p !== perk)
-                : [...prev, perk],
+                : [...prev, perk]
         );
     };
 
@@ -145,6 +150,15 @@ const AddTicketPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (isFraud) {
+            toast.error(
+                "Your account is restricted. You cannot add tickets.",
+                { duration: 5000 }
+            );
+            return;
+        }
+
         setShowErrors(true);
 
         const formData = new FormData(e.currentTarget);
@@ -166,12 +180,12 @@ const AddTicketPage = () => {
                         border: "1px solid #FECACA",
                         fontWeight: "600",
                     },
-                },
+                }
             );
 
             const firstErrorField = Object.keys(validationErrors)[0];
             const element = document.querySelector(
-                `[data-field="${firstErrorField}"]`,
+                `[data-field="${firstErrorField}"]`
             );
             if (element) {
                 element.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -265,6 +279,81 @@ const AddTicketPage = () => {
         transportOptions.find((t) => t.key === selectedTransport)?.icon ||
         FaBus;
 
+    if (isFraud) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 px-4 py-8 dark:from-[#0F0506] dark:via-[#0A0F1C] dark:to-[#140C08] md:px-8 flex items-center justify-center">
+                <div className="mx-auto w-full max-w-2xl ">
+                    <div className="relative overflow-hidden rounded-3xl border-2 border-red-200 bg-white p-8 shadow-2xl dark:border-red-900/50 dark:bg-[#0A1020] md:p-12">
+                        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-red-100/50 blur-3xl dark:bg-red-900/20" />
+                        <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-orange-100/50 blur-3xl dark:bg-orange-900/20" />
+
+                        <div className="relative z-10 flex flex-col items-center text-center">
+                            <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-red-100 to-red-200 shadow-xl dark:from-red-950/50 dark:to-red-900/30">
+                                <FaBan className="text-5xl text-red-600 dark:text-red-400" />
+                            </div>
+
+                            <h1 className="mb-3 text-2xl font-black text-red-700 dark:text-red-400 md:text-3xl">
+                                Account Restricted
+                            </h1>
+
+                            <p className="mb-6 max-w-md text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                Your vendor account has been{" "}
+                                <span className="font-black text-red-600 dark:text-red-400">
+                                    marked as fraud
+                                </span>{" "}
+                                by the admin. You are no longer able to add new
+                                tickets to the platform. All your existing
+                                tickets have been hidden from public view.
+                            </p>
+
+                            <div className="mb-8 w-full rounded-2xl border border-red-200 bg-red-50 p-5 dark:border-red-900/50 dark:bg-red-950/20">
+                                <div className="flex items-start gap-3">
+                                    <FiAlertTriangle className="mt-0.5 shrink-0 text-xl text-red-500" />
+                                    <div className="text-left">
+                                        <p className="text-sm font-bold text-red-700 dark:text-red-300">
+                                            What does this mean?
+                                        </p>
+                                        <ul className="mt-2 space-y-1.5 text-xs text-red-600 dark:text-red-400">
+                                            <li className="flex items-center gap-2">
+                                                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                                                You cannot add new tickets
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                                                All your tickets are hidden from
+                                                the platform
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                                                Contact admin to resolve this
+                                                issue
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 sm:flex-row">
+                                <Link
+                                    href={"/dashboard/vendor/profile"}
+                                    className=" h-auto w-auto py-2 rounded-full bg-gradient-to-r from-gray-600 to-gray-700 px-6 font-bold text-white shadow-lg"
+                                >
+                                    Go to Dashboard
+                                </Link>
+                                <Link
+                                href={"/"}
+                                className=" h-auto w-auto py-2 rounded-full  px-6 font-bold text-zinc-600 border border-zinc-400 shadow-lg"
+                                >
+                                    Back to Home
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 px-4 py-8 dark:from-[#070B14] dark:via-[#0A0F1C] dark:to-[#06140C] md:px-8">
             <div className="mx-auto max-w-7xl">
@@ -312,7 +401,7 @@ const AddTicketPage = () => {
                                             <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                                             {message}
                                         </li>
-                                    ),
+                                    )
                                 )}
                             </ul>
                         </div>
@@ -357,7 +446,7 @@ const AddTicketPage = () => {
                                                     onChange={(e) =>
                                                         handleLiveChange(
                                                             "title",
-                                                            e.target.value,
+                                                            e.target.value
                                                         )
                                                     }
                                                 />
@@ -392,7 +481,7 @@ const AddTicketPage = () => {
                                                     onChange={(e) =>
                                                         handleLiveChange(
                                                             "from",
-                                                            e.target.value,
+                                                            e.target.value
                                                         )
                                                     }
                                                 />
@@ -427,7 +516,7 @@ const AddTicketPage = () => {
                                                     onChange={(e) =>
                                                         handleLiveChange(
                                                             "to",
-                                                            e.target.value,
+                                                            e.target.value
                                                         )
                                                     }
                                                 />
@@ -461,7 +550,7 @@ const AddTicketPage = () => {
                                                     key={option.key}
                                                     onClick={() =>
                                                         setSelectedTransport(
-                                                            option.key,
+                                                            option.key
                                                         )
                                                     }
                                                     className={`group relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl border-2 p-4 transition-all ${
@@ -530,7 +619,7 @@ const AddTicketPage = () => {
                                                     onChange={(e) =>
                                                         handleLiveChange(
                                                             "price",
-                                                            e.target.value,
+                                                            e.target.value
                                                         )
                                                     }
                                                 />
@@ -566,7 +655,7 @@ const AddTicketPage = () => {
                                                     onChange={(e) =>
                                                         handleLiveChange(
                                                             "quantity",
-                                                            e.target.value,
+                                                            e.target.value
                                                         )
                                                     }
                                                 />
@@ -605,7 +694,7 @@ const AddTicketPage = () => {
                                                     onChange={(e) =>
                                                         handleLiveChange(
                                                             "departureDate",
-                                                            e.target.value,
+                                                            e.target.value
                                                         )
                                                     }
                                                 />

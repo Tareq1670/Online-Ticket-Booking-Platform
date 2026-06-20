@@ -204,12 +204,15 @@ const RegisterPage = () => {
                 imageURL = uploadData?.display_url || uploadData?.url || "";
             }
 
+            document.cookie = `pending_role=${selectedRole}; path=/; max-age=600; SameSite=Lax`;
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
             const { data, error } = await authClient.signUp.email({
                 email: formFields.email,
                 password: formFields.password,
                 name: formFields.name,
                 image: imageURL || undefined,
-                role: selectedRole,
             });
 
             if (error) {

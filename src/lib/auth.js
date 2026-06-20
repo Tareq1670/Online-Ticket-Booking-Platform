@@ -21,50 +21,52 @@ export const auth = betterAuth({
     database: mongodbAdapter(db, {
         client,
     }),
+
+    // ✅ role field টা remove করেছি — admin plugin এটা handle করবে
     user: {
         additionalFields: {
-            role: {
-                type: "string",
-                defaultValue: "user",
-                input: true,
-            },
             isFraud: {
-                type: "string",
+                type: "boolean",
                 defaultValue: false,
-                input: true,
+                input: false, // client থেকে set করতে দিবে না
             },
         },
     },
-    plugins : [
-        admin()
+
+    // ✅ admin plugin এ default role configure করেছি
+    plugins: [
+        admin({
+            defaultRole: "user",
+            adminRoles: ["admin"],
+        }),
     ],
+
+    // ✅ Cookie থেকে role নিয়ে server side এ set করব (secure way)
     databaseHooks: {
         user: {
             create: {
-                before: async (user, ctx) => {
+                before: async (user) => {
                     let role = "user";
 
-                    if (user.role && ["user", "vendor"].includes(user.role)) {
-                        role = user.role;
-                    } else {
-                        try {
-                            const cookieStore = await cookies();
-                            const pendingRole =
-                                cookieStore.get("pending_role")?.value;
+                    try {
+                        const cookieStore = await cookies();
+                        const pendingRole =
+                            cookieStore.get("pending_role")?.value;
 
-                            if (
-                                pendingRole &&
-                                ["user", "vendor"].includes(pendingRole)
-                            ) {
-                                role = pendingRole;
-                            }
-                        } catch (err) {}
+                        if (
+                            pendingRole &&
+                            ["user", "vendor"].includes(pendingRole)
+                        ) {
+                            role = pendingRole;
+                        }
+                    } catch (err) {
+                        // fallback to "user"
                     }
 
                     return {
                         data: {
                             ...user,
-                            role: role,
+                            role,
                         },
                     };
                 },

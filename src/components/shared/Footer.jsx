@@ -19,7 +19,7 @@ import { SiStripe } from "react-icons/si";
 
 const Footer = () => {
     return (
-        <footer className="mt-10 w-full bg-zinc-50 dark:bg-zinc-950 rounded-t-3xl border-t border-zinc-200 dark:border-zinc-800">
+        <footer className="w-full bg-zinc-50 dark:bg-zinc-950 rounded-t-3xl border-t border-zinc-200 dark:border-zinc-800">
             <div className="container mx-auto px-2 md:px-0 py-6 md:py-10 pb-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
                     <div>

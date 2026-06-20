@@ -105,7 +105,7 @@ export default function DashboardWelcome({ user }) {
                             <div className="flex items-center gap-2 text-white">
                                 <FaBusAlt className="text-2xl" />
                                 <span className="text-xl font-black tracking-tight">
-                                    TicketBari
+                                    Ticketix
                                 </span>
                             </div>
 

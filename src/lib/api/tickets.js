@@ -10,3 +10,8 @@ export const getMyAddedTickets = async(vendorId)=> {
 export const getSingleTickets = async(ticketId) =>{
     return serverDataFetch(`/api/vendor/my-tickets/${ticketId}`)
 }
+
+
+export const approvedTickets = async(queryParams) => {
+    return serverDataFetch(`/api/users/all-tickets?${queryParams}`);
+}
