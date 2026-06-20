@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { cookies } from "next/headers";
+import { admin } from "better-auth/plugins";
 
 const client = new MongoClient(process.env.TICKETIX_URI);
 const db = client.db("Ticketix");
@@ -27,8 +28,16 @@ export const auth = betterAuth({
                 defaultValue: "user",
                 input: true,
             },
+            isFraud: {
+                type: "string",
+                defaultValue: false,
+                input: true,
+            },
         },
     },
+    plugins : [
+        admin()
+    ],
     databaseHooks: {
         user: {
             create: {
