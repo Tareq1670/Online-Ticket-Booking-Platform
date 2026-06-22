@@ -8,3 +8,14 @@ export const createBooking = async (data) => {
 export const cancelBooking = async(cancelBookingId) => {
     return serverMutation(`/api/bookings/${cancelBookingId}/cancel`,{}, "PATCH")
 }
+
+
+
+export const acceptBooking =async(acceptId) => {
+    return serverMutation(`/api/vendor/bookings/${acceptId}/accept`,{},"PATCH")
+}
+
+
+export const rejectBooking =async(rejectId) => {
+    return serverMutation(`/api/vendor/bookings/${rejectId}/reject`,{},"PATCH")
+}

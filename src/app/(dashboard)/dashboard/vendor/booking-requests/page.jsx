@@ -1,11 +1,19 @@
-import React from 'react';
+import { getVendorBookingRequests } from "@/lib/api/booking";
+import BookingRequestsClient from "./BookingRequestsClient";
+import { getUser } from "@/lib/core/session";
 
-const page = () => {
+const bookingRequestsPage = async () => {
+    const user = await getUser();
+    const vendorId = user?.id || "";
+    const data = await getVendorBookingRequests(vendorId);
+    const initialBookings = data.data
+
     return (
-        <div>
-           
-        </div>
+        <BookingRequestsClient
+            initialBookings={initialBookings}
+            vendorId={vendorId}
+        />
     );
 };
 
-export default page;
+export default bookingRequestsPage;

@@ -5,3 +5,7 @@ export const getMyBookedTickets = async (userId) => {
         catch: "no-store",
     });
 };
+
+export const getVendorBookingRequests = async (vendorId) => {
+    return serverDataFetch(`/api/vendor/booking-requests?vendorId=${vendorId}`);
+};
