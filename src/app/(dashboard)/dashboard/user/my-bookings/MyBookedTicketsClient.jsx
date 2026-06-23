@@ -127,12 +127,7 @@ const cardVariants = {
         scale: 1,
         transition: { type: "spring", stiffness: 80, damping: 14 },
     },
-    exit: {
-        opacity: 0,
-        scale: 0.85,
-        y: -20,
-        transition: { duration: 0.25 },
-    },
+    exit: { opacity: 0, scale: 0.85, y: -20, transition: { duration: 0.25 } },
 };
 
 const backdropVariants = {
@@ -148,12 +143,7 @@ const modalVariants = {
         y: 0,
         transition: { type: "spring", stiffness: 200, damping: 22 },
     },
-    exit: {
-        opacity: 0,
-        scale: 0.9,
-        y: 20,
-        transition: { duration: 0.2 },
-    },
+    exit: { opacity: 0, scale: 0.9, y: 20, transition: { duration: 0.2 } },
 };
 
 const StatusMessageCard = ({ status }) => {
@@ -476,7 +466,6 @@ const BookingCard = ({ booking, onCancelClick, onPaymentClick }) => {
                 </motion.div>
 
                 <StatusMessageCard status={booking.status} />
-
                 <CountdownTimer
                     departureDate={booking.departureDate}
                     status={booking.status}
@@ -769,176 +758,193 @@ const CancelModal = ({ isOpen, onClose, onConfirm, isProcessing }) => (
     </AnimatePresence>
 );
 
-const PaymentModal = ({ payBooking, onClose, onConfirm, isProcessing }) => (
-    <AnimatePresence>
-        {payBooking && (
-            <div
-                className="fixed inset-0 z-[99990] flex items-center justify-center p-4"
-                style={{ isolation: "isolate" }}
-            >
-                <motion.div
-                    variants={backdropVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                    className="fixed inset-0 bg-black/70 backdrop-blur-md"
-                    onClick={!isProcessing ? onClose : undefined}
-                />
-                <motion.div
-                    variants={modalVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="relative z-[99991] mx-auto w-full max-w-[calc(100vw-2rem)] rounded-[28px] border border-emerald-100/60 bg-white shadow-[0_-20px_60px_rgba(0,0,0,0.25)] sm:max-w-md sm:shadow-[0_30px_100px_rgba(6,78,59,0.35)] dark:border-emerald-900/40 dark:bg-[#0A1626]"
+const PaymentModal = ({ payBooking, onClose, isProcessing, user }) => {
+    const [submitting, setSubmitting] = useState(false);
+    const processing = isProcessing || submitting;
+
+    const paymentPayload = payBooking
+        ? JSON.stringify({
+              bookingId: getPlainId(payBooking._id),
+              ticketId: payBooking.ticketId,
+              ticketTitle: payBooking.title,
+              totalPrice: payBooking.totalPrice,
+              quantity: payBooking.quantity,
+              userId: user?.id,
+              userEmail: user?.email,
+          })
+        : "";
+
+    return (
+        <AnimatePresence>
+            {payBooking && (
+                <div
+                    className="fixed inset-0 z-[99990] flex items-center justify-center p-4"
+                    style={{ isolation: "isolate" }}
                 >
-                    <div className="relative flex flex-col items-center px-5 pb-7 pt-6 sm:px-7 sm:pb-7 sm:pt-7">
-                        <Button
-                            variant="none"
-                            onClick={!isProcessing ? onClose : undefined}
-                            className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-                        >
-                            <FiX className="text-base" />
-                        </Button>
-                        <motion.div
-                            initial={{ scale: 0, rotate: -180 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{
-                                delay: 0.1,
-                                type: "spring",
-                                stiffness: 200,
-                            }}
-                            className="flex h-[72px] w-[72px] items-center justify-center rounded-[24px] shadow-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-300"
-                        >
-                            <FiCreditCard className="text-3xl" />
-                        </motion.div>
-                        <motion.h3
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="mt-5 px-4 text-center text-lg font-black leading-snug text-gray-900 sm:text-xl dark:text-white"
-                        >
-                            Confirm Payment
-                        </motion.h3>
-                        <motion.p
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.25 }}
-                            className="mt-2.5 px-2 text-center text-sm leading-relaxed text-gray-500 dark:text-gray-400"
-                        >
-                            Review your booking details before proceeding.
-                        </motion.p>
-                        <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="w-full mt-5 bg-emerald-50 dark:bg-[#07111F] rounded-2xl p-4 border border-emerald-100 dark:border-emerald-900/50 space-y-2"
-                        >
-                            <div className="flex justify-between items-center py-1 border-b border-emerald-200/50 dark:border-emerald-800/50">
-                                <span className="text-sm font-bold text-gray-600 dark:text-gray-400">
-                                    Ticket:
-                                </span>
-                                <span className="text-sm font-black text-[#064E3B] dark:text-white max-w-[60%] text-right truncate">
-                                    {payBooking.title}
-                                </span>
-                            </div>
-                            <div className="flex justify-between items-center py-1 border-b border-emerald-200/50 dark:border-emerald-800/50">
-                                <span className="text-sm font-bold text-gray-600 dark:text-gray-400">
-                                    Route:
-                                </span>
-                                <span className="text-sm font-black text-[#064E3B] dark:text-white">
-                                    {payBooking.from} → {payBooking.to}
-                                </span>
-                            </div>
-                            <div className="flex justify-between items-center py-1 border-b border-emerald-200/50 dark:border-emerald-800/50">
-                                <span className="text-sm font-bold text-gray-600 dark:text-gray-400">
-                                    Quantity:
-                                </span>
-                                <span className="text-sm font-black text-[#064E3B] dark:text-white">
-                                    {payBooking.quantity} seats
-                                </span>
-                            </div>
-                            <motion.div
-                                initial={{ scale: 0.95 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.45, type: "spring" }}
-                                className="flex justify-between items-center py-2 mt-2 bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-950 dark:to-green-950 rounded-xl px-3 border-l-4 border-emerald-600"
+                    <motion.div
+                        variants={backdropVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                        className="fixed inset-0 bg-black/70 backdrop-blur-md"
+                        onClick={!processing ? onClose : undefined}
+                    />
+                    <motion.div
+                        variants={modalVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="relative z-[99991] mx-auto w-full max-w-[calc(100vw-2rem)] rounded-[28px] border border-emerald-100/60 bg-white shadow-[0_-20px_60px_rgba(0,0,0,0.25)] sm:max-w-md sm:shadow-[0_30px_100px_rgba(6,78,59,0.35)] dark:border-emerald-900/40 dark:bg-[#0A1626]"
+                    >
+                        <div className="relative flex flex-col items-center px-5 pb-7 pt-6 sm:px-7 sm:pb-7 sm:pt-7">
+                            <Button
+                                variant="none"
+                                onClick={!processing ? onClose : undefined}
+                                className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
                             >
-                                <span className="text-lg font-black text-gray-900 dark:text-white">
-                                    Total:
-                                </span>
-                                <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                                    ৳{payBooking.totalPrice}
-                                </span>
+                                <FiX className="text-base" />
+                            </Button>
+                            <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{
+                                    delay: 0.1,
+                                    type: "spring",
+                                    stiffness: 200,
+                                }}
+                                className="flex h-[72px] w-[72px] items-center justify-center rounded-[24px] shadow-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-300"
+                            >
+                                <FiCreditCard className="text-3xl" />
                             </motion.div>
-                        </motion.div>
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="w-full mt-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-xl p-3 text-sm text-amber-800 dark:text-amber-300 font-bold flex items-center gap-2"
-                        >
-                            <FiAlertTriangle /> Demo Mode: Click to simulate
-                            payment
-                        </motion.div>
-                        <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.45 }}
-                            className="mt-6 flex w-full flex-col gap-3 sm:flex-row sm:justify-center"
-                        >
-                            <motion.div
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.97 }}
-                                className="w-full sm:w-auto"
+                            <motion.h3
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="mt-5 px-4 text-center text-lg font-black leading-snug text-gray-900 sm:text-xl dark:text-white"
                             >
-                                <Button
-                                    variant="none"
-                                    type="button"
-                                    disabled={isProcessing}
-                                    onClick={onClose}
-                                    className="h-12 w-full rounded-2xl border border-gray-200 bg-gray-100 px-6 text-sm font-black text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 sm:h-11 sm:min-w-[120px] dark:border-gray-700/60 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                                Confirm Payment
+                            </motion.h3>
+                            <motion.p
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.25 }}
+                                className="mt-2.5 px-2 text-center text-sm leading-relaxed text-gray-500 dark:text-gray-400"
+                            >
+                                Review your booking details before proceeding.
+                            </motion.p>
+                            <motion.div
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="w-full mt-5 bg-emerald-50 dark:bg-[#07111F] rounded-2xl p-4 border border-emerald-100 dark:border-emerald-900/50 space-y-2"
+                            >
+                                <div className="flex justify-between items-center py-1 border-b border-emerald-200/50 dark:border-emerald-800/50">
+                                    <span className="text-sm font-bold text-gray-600 dark:text-gray-400">
+                                        Ticket:
+                                    </span>
+                                    <span className="text-sm font-black text-[#064E3B] dark:text-white max-w-[60%] text-right truncate">
+                                        {payBooking.title}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center py-1 border-b border-emerald-200/50 dark:border-emerald-800/50">
+                                    <span className="text-sm font-bold text-gray-600 dark:text-gray-400">
+                                        Route:
+                                    </span>
+                                    <span className="text-sm font-black text-[#064E3B] dark:text-white">
+                                        {payBooking.from} → {payBooking.to}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center py-1 border-b border-emerald-200/50 dark:border-emerald-800/50">
+                                    <span className="text-sm font-bold text-gray-600 dark:text-gray-400">
+                                        Quantity:
+                                    </span>
+                                    <span className="text-sm font-black text-[#064E3B] dark:text-white">
+                                        {payBooking.quantity} seats
+                                    </span>
+                                </div>
+                                <motion.div
+                                    initial={{ scale: 0.95 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.45, type: "spring" }}
+                                    className="flex justify-between items-center py-2 mt-2 bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-950 dark:to-green-950 rounded-xl px-3 border-l-4 border-emerald-600"
                                 >
-                                    Cancel
-                                </Button>
+                                    <span className="text-lg font-black text-gray-900 dark:text-white">
+                                        Total:
+                                    </span>
+                                    <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                                        ৳{payBooking.totalPrice}
+                                    </span>
+                                </motion.div>
                             </motion.div>
+
                             <motion.div
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.97 }}
-                                className="w-full sm:w-auto"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.45 }}
+                                className="mt-6 flex w-full flex-col gap-3 sm:flex-row sm:justify-center"
                             >
-                                <Button
-                                    variant="none"
-                                    type="button"
-                                    disabled={isProcessing}
-                                    onClick={onConfirm}
-                                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-6 text-sm font-black text-white shadow-lg transition-colors disabled:opacity-70 sm:h-11 sm:min-w-[160px] bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 hover:opacity-90 shadow-emerald-600/30"
+                                <motion.div
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
+                                    className="w-full sm:w-auto"
                                 >
-                                    {isProcessing ? (
-                                        <motion.span
-                                            animate={{ rotate: 360 }}
-                                            transition={{
-                                                duration: 1,
-                                                repeat: Infinity,
-                                                ease: "linear",
-                                            }}
-                                        >
-                                            ⏳
-                                        </motion.span>
-                                    ) : (
-                                        <FiCreditCard />
-                                    )}{" "}
-                                    {isProcessing
-                                        ? "Processing..."
-                                        : `Pay ৳${payBooking.totalPrice}`}
-                                </Button>
+                                    <Button
+                                        variant="none"
+                                        type="button"
+                                        disabled={processing}
+                                        onClick={onClose}
+                                        className="h-12 w-full rounded-2xl border border-gray-200 bg-gray-100 px-6 text-sm font-black text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 sm:h-11 sm:min-w-[120px] dark:border-gray-700/60 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </motion.div>
+
+                                <motion.form
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
+                                    action="/api/checkout_sessions"
+                                    method="POST"
+                                    onSubmit={() => setSubmitting(true)}
+                                    className="w-full sm:w-auto"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="payload"
+                                        value={paymentPayload}
+                                    />
+                                    <Button
+                                        variant="none"
+                                        type="submit"
+                                        disabled={processing}
+                                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-6 text-sm font-black text-white shadow-lg transition-colors disabled:opacity-70 sm:h-11 sm:min-w-[160px] bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 hover:opacity-90 shadow-emerald-600/30"
+                                    >
+                                        {processing ? (
+                                            <motion.span
+                                                animate={{ rotate: 360 }}
+                                                transition={{
+                                                    duration: 1,
+                                                    repeat: Infinity,
+                                                    ease: "linear",
+                                                }}
+                                            >
+                                                ⏳
+                                            </motion.span>
+                                        ) : (
+                                            <FiCreditCard />
+                                        )}{" "}
+                                        {processing
+                                            ? "Redirecting..."
+                                            : `Pay ৳${payBooking.totalPrice}`}
+                                    </Button>
+                                </motion.form>
                             </motion.div>
-                        </motion.div>
-                    </div>
-                </motion.div>
-            </div>
-        )}
-    </AnimatePresence>
-);
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
+    );
+};
 
 const MyBookedTicketsClient = ({ user, initialBookings }) => {
     const [bookings, setBookings] = useState(initialBookings);
@@ -1034,46 +1040,6 @@ const MyBookedTicketsClient = ({ user, initialBookings }) => {
         } finally {
             setIsProcessing(false);
             setCancelBookingId(null);
-        }
-    };
-
-    const handlePayConfirm = async () => {
-        if (!payBooking) return;
-        const id = getPlainId(payBooking._id);
-        setIsProcessing(true);
-        try {
-            const res = await fetch(`/api/bookings/${id}/paid`, {
-                method: "PATCH",
-            });
-            const data = await res.json();
-            if (data.success) {
-                await fetch("/api/transactions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        userId: user.id,
-                        bookingId: id,
-                        transactionId: `TXN-${Date.now()}`,
-                        amount: payBooking.totalPrice,
-                        ticketTitle: payBooking.title,
-                    }),
-                });
-                setBookings((prev) =>
-                    prev.map((b) =>
-                        getPlainId(b._id) === id
-                            ? { ...b, status: "paid", isPaid: true }
-                            : b,
-                    ),
-                );
-                toast.success("Payment successful! Ticket confirmed. 🎉");
-                setPayBooking(null);
-            } else {
-                toast.error(data.message || "Payment failed");
-            }
-        } catch {
-            toast.error("Network error. Please try again.");
-        } finally {
-            setIsProcessing(false);
         }
     };
 
@@ -1279,11 +1245,7 @@ const MyBookedTicketsClient = ({ user, initialBookings }) => {
                                     >
                                         <Icon className="text-base" /> {f.label}
                                         <span
-                                            className={`text-xs px-2 py-0.5 rounded-full font-black ${
-                                                isActive
-                                                    ? "bg-black/20"
-                                                    : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                                            }`}
+                                            className={`text-xs px-2 py-0.5 rounded-full font-black ${isActive ? "bg-black/20" : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400"}`}
                                         >
                                             {counts[f.key] || 0}
                                         </span>
@@ -1374,8 +1336,8 @@ const MyBookedTicketsClient = ({ user, initialBookings }) => {
             <PaymentModal
                 payBooking={payBooking}
                 onClose={() => setPayBooking(null)}
-                onConfirm={handlePayConfirm}
                 isProcessing={isProcessing}
+                user={user}
             />
         </>
     );

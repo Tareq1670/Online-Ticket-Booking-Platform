@@ -1390,14 +1390,30 @@ const BookingRequestsClient = ({ initialBookings, vendorId }) => {
                                                             </div>
                                                         </motion.div>
                                                     </Table.Cell>
-                                                    <Table.Cell>{""}</Table.Cell>
-                                                    <Table.Cell>{""}</Table.Cell>
-                                                    <Table.Cell>{""}</Table.Cell>
-                                                    <Table.Cell>{""}</Table.Cell>
-                                                    <Table.Cell>{""}</Table.Cell>
-                                                    <Table.Cell>{""}</Table.Cell>
-                                                    <Table.Cell>{""}</Table.Cell>
-                                                    <Table.Cell>{""}</Table.Cell>
+                                                    <Table.Cell>
+                                                        {""}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {""}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {""}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {""}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {""}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {""}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {""}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {""}
+                                                    </Table.Cell>
                                                 </Table.Row>
                                             ) : (
                                                 filteredBookings.map(
