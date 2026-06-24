@@ -1,7 +1,9 @@
-import React from 'react';
+import { checkRoleAccess } from "@/lib/core/session";
 
-const layout = ({children}) => {
+
+const vendorLayout = async ({ children }) => {
+    await checkRoleAccess("vendor");
     return children
 };
 
-export default layout;
+export default vendorLayout;

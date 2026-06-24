@@ -22,18 +22,18 @@ export const auth = betterAuth({
         client,
     }),
 
-    // ✅ role field টা remove করেছি — admin plugin এটা handle করবে
+
     user: {
         additionalFields: {
             isFraud: {
                 type: "boolean",
                 defaultValue: false,
-                input: false, // client থেকে set করতে দিবে না
+                input: false, 
             },
         },
     },
 
-    // ✅ admin plugin এ default role configure করেছি
+
     plugins: [
         admin({
             defaultRole: "user",
@@ -41,7 +41,6 @@ export const auth = betterAuth({
         }),
     ],
 
-    // ✅ Cookie থেকে role নিয়ে server side এ set করব (secure way)
     databaseHooks: {
         user: {
             create: {
@@ -60,7 +59,7 @@ export const auth = betterAuth({
                             role = pendingRole;
                         }
                     } catch (err) {
-                        // fallback to "user"
+
                     }
 
                     return {

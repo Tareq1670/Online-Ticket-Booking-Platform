@@ -114,6 +114,10 @@ const Navbar = () => {
     const isLoading = isPending;
     const mobileMenuRef = useRef(null);
 
+    console.log("session data:", data);
+    console.log("user:", data?.user);
+    console.log("role:", data?.user?.role);
+
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -161,8 +165,7 @@ const Navbar = () => {
                     },
                 },
             });
-        } catch (err) {
-        }
+        } catch (err) {}
     };
 
     const isDark = mounted && resolvedTheme === "dark";
@@ -274,7 +277,7 @@ const Navbar = () => {
                                 >
                                     <Avatar className="w-9 h-9 group-hover:ring-2 ring-blue-500/70 transition-all cursor-pointer">
                                         <Avatar.Image
-                                        className="object-cover"
+                                            className="object-cover"
                                             src={user?.image}
                                             alt={user?.name || "User"}
                                         />

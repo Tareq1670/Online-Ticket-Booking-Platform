@@ -1,7 +1,8 @@
 import Footer from "@/components/shared/Footer";
 import Navbar from "@/components/shared/Navbar";
 
-const layout = ({children}) => {
+const layout = async ({ children }) => {
+
     return (
         <div>
             <Navbar/>
