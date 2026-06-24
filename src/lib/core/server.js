@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
+import { authClient } from "../auth-client";
 
 const baseUrl = process.env.NEXT_PUBLIC_URL
 
 
 export const serverMutation = async(path, data ,method = "POST") => {
+    const {data:token} = await authClient.token()
+    console.log(token);
     const res = await fetch(`${baseUrl}${path}`,{
         method : method ,
         headers : {

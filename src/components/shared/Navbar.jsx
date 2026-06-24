@@ -114,9 +114,6 @@ const Navbar = () => {
     const isLoading = isPending;
     const mobileMenuRef = useRef(null);
 
-    console.log("session data:", data);
-    console.log("user:", data?.user);
-    console.log("role:", data?.user?.role);
 
     useEffect(() => {
         setMounted(true);

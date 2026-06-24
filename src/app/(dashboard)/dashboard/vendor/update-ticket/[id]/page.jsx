@@ -13,7 +13,6 @@ const UpdateTicketPage = async ({ params }) => {
 
 
     const result = await getSingleTickets(id);
-    console.log(result);
 
     if (!result?.success || !result?.data) {
         redirect("/dashboard/vendor/my-tickets");

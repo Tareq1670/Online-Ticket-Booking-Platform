@@ -24,6 +24,7 @@ import { RiUploadCloud2Fill, RiVerifiedBadgeFill } from "react-icons/ri";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { imageUploader } from "@/lib/imageUpload";
 import { updateMyAddedTicket } from "@/lib/actions/ticket";
+import { motion, AnimatePresence } from "framer-motion";
 
 const transportOptions = [
     { key: "Bus", label: "Bus", icon: FaBus },
@@ -32,25 +33,160 @@ const transportOptions = [
     { key: "Launch", label: "Launch", icon: FaShip },
 ];
 
-const perksOptions = [
-    "AC",
-    "Non-AC",
-    "Breakfast",
-    "Lunch",
-    "WiFi",
-    "Charging Port",
-    "Blanket",
-    "Water Bottle",
-    "Entertainment",
-    "Reclining Seats",
-];
+const perksByTransport = {
+    Bus: [
+        "AC",
+        "Non-AC",
+        "WiFi",
+        "Charging Port",
+        "Water Bottle",
+        "Reclining Seats",
+        "Blanket",
+        "Entertainment",
+        "Snacks",
+        "Leg Space",
+        "Curtains",
+        "Reading Light",
+    ],
+    Train: [
+        "AC",
+        "Non-AC",
+        "WiFi",
+        "Charging Port",
+        "Breakfast",
+        "Lunch",
+        "Dinner",
+        "Water Bottle",
+        "Blanket",
+        "Pillow",
+        "Reading Light",
+        "Sleeper Berth",
+        "Window Seat",
+        "Entertainment",
+    ],
+    Plane: [
+        "In-Flight Meal",
+        "Extra Legroom",
+        "WiFi",
+        "Charging Port",
+        "Entertainment",
+        "Blanket",
+        "Pillow",
+        "Priority Boarding",
+        "Lounge Access",
+        "Extra Baggage",
+        "Seat Selection",
+        "Beverage",
+        "Noise-Cancelling Headphones",
+        "Amenity Kit",
+    ],
+    Launch: [
+        "AC Cabin",
+        "Non-AC Cabin",
+        "Deck Access",
+        "Breakfast",
+        "Lunch",
+        "Dinner",
+        "Water Bottle",
+        "Blanket",
+        "Pillow",
+        "WiFi",
+        "Charging Port",
+        "VIP Lounge",
+        "Life Jacket",
+        "Entertainment",
+    ],
+};
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { type: "spring", stiffness: 400, damping: 25 },
+    },
+};
+
+const heroVariants = {
+    hidden: { opacity: 0, y: -30 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: "spring",
+            stiffness: 300,
+            damping: 25,
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const slideInLeft = {
+    hidden: { opacity: 0, x: -30 },
+    visible: {
+        opacity: 1,
+        x: 0,
+        transition: { type: "spring", stiffness: 400, damping: 25 },
+    },
+};
+
+const slideInRight = {
+    hidden: { opacity: 0, x: 30 },
+    visible: {
+        opacity: 1,
+        x: 0,
+        transition: { type: "spring", stiffness: 400, damping: 25 },
+    },
+};
+
+const errorBannerVariants = {
+    hidden: { opacity: 0, height: 0, marginBottom: 0 },
+    visible: {
+        opacity: 1,
+        height: "auto",
+        marginBottom: 24,
+        transition: { type: "spring", stiffness: 400, damping: 30 },
+    },
+    exit: {
+        opacity: 0,
+        height: 0,
+        marginBottom: 0,
+        transition: { duration: 0.3 },
+    },
+};
+
+const perkContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.03, delayChildren: 0.05 },
+    },
+    exit: { opacity: 0, transition: { duration: 0.2 } },
+};
+
+const perkItemVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: { type: "spring", stiffness: 500, damping: 25 },
+    },
+    exit: { opacity: 0, scale: 0.8, transition: { duration: 0.15 } },
+};
 
 const UpdateTicketForm = ({ initialTicket, vendor }) => {
     const router = useRouter();
 
     const ticketId = initialTicket?._id?.$oid || initialTicket?._id;
     const isRejected = initialTicket?.verificationStatus === "rejected";
-
 
     const [formValues, setFormValues] = useState({
         title: initialTicket?.title || "",
@@ -75,10 +211,10 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
     const [errors, setErrors] = useState({});
     const [showErrors, setShowErrors] = useState(false);
 
+    const currentPerks = perksByTransport[selectedTransport] || [];
 
     const handleFieldChange = (field, value) => {
         setFormValues((prev) => ({ ...prev, [field]: value }));
-
         if (showErrors) {
             setErrors((prev) => {
                 const newErrors = { ...prev };
@@ -88,6 +224,11 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                 return newErrors;
             });
         }
+    };
+
+    const handleTransportChange = (transportKey) => {
+        setSelectedTransport(transportKey);
+        setSelectedPerks([]);
     };
 
     const togglePerk = (perk) => {
@@ -106,74 +247,54 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
         }
     };
 
-
     const validateForm = (values) => {
         const newErrors = {};
-
-        if (!values.title?.trim())
-            newErrors.title = "Ticket title is required";
-        if (!values.from?.trim())
-            newErrors.from = "From location is required";
-        if (!values.to?.trim())
-            newErrors.to = "To location is required";
-
+        if (!values.title?.trim()) newErrors.title = "Ticket title is required";
+        if (!values.from?.trim()) newErrors.from = "From location is required";
+        if (!values.to?.trim()) newErrors.to = "To location is required";
         if (!values.price) {
             newErrors.price = "Price is required";
         } else if (Number(values.price) <= 0) {
             newErrors.price = "Price must be greater than 0";
         }
-
         if (!values.quantity) {
             newErrors.quantity = "Ticket quantity is required";
         } else if (Number(values.quantity) <= 0) {
             newErrors.quantity = "Quantity must be greater than 0";
         }
-
         if (!values.departureDate) {
             newErrors.departureDate = "Departure date & time is required";
         } else if (new Date(values.departureDate) <= new Date()) {
             newErrors.departureDate = "Departure date must be in the future";
         }
-
         return newErrors;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (isRejected) {
             toast.error("Rejected tickets cannot be updated");
             return;
         }
-
         setShowErrors(true);
-
-
         const validationErrors = validateForm(formValues);
-
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
-
             const firstErrorField = Object.keys(validationErrors)[0];
             const element = document.querySelector(
                 `[data-field="${firstErrorField}"]`,
             );
-
             if (element) {
                 element.scrollIntoView({ behavior: "smooth", block: "center" });
             }
-
             toast.error("Please fix all required fields");
             return;
         }
-
         setErrors({});
         setIsLoading(true);
         const loadingToast = toast.loading("Updating ticket...");
-
         try {
             let finalImage = initialTicket?.image || "";
-
             if (imageFile) {
                 const uploadedImage = await imageUploader(imageFile);
                 finalImage =
@@ -183,7 +304,6 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                     initialTicket?.image ||
                     "";
             }
-
             const ticketData = {
                 title: formValues.title,
                 from: formValues.from,
@@ -195,11 +315,7 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                 perks: selectedPerks,
                 image: finalImage,
             };
-
-            const result = await updateMyAddedTicket(
-                ticketId, ticketData
-            );
-
+            const result = await updateMyAddedTicket(ticketId, ticketData);
             if (result?.success) {
                 toast.success("Ticket updated successfully! 🎫", {
                     id: loadingToast,
@@ -218,7 +334,6 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
         }
     };
 
-    // ✅ Reset করলে আগের data ফিরে আসবে
     const handleReset = () => {
         setSelectedTransport(initialTicket?.transportType || "Bus");
         setSelectedPerks(initialTicket?.perks || []);
@@ -241,72 +356,141 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
         FaBus;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 px-4 py-8 dark:from-[#070B14] dark:via-[#0A0F1C] dark:to-[#06140C] md:px-8">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 px-4 py-8 dark:from-[#070B14] dark:via-[#0A0F1C] dark:to-[#06140C] md:px-8"
+        >
             <div className="mx-auto max-w-7xl">
-                {/* ✅ Header */}
-                <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 p-8 shadow-2xl">
+                <motion.div
+                    variants={heroVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 p-8 shadow-2xl"
+                >
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_50%)]" />
-                    <FaBus className="absolute -bottom-4 right-8 text-9xl text-white/10" />
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 0.1, x: 0 }}
+                        transition={{ delay: 0.5, duration: 0.8 }}
+                    >
+                        <FaBus className="absolute -bottom-4 right-8 text-9xl text-white" />
+                    </motion.div>
                     <div className="relative z-10 flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md">
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.05, rotate: 3 }}
+                            className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md"
+                        >
                             <IoTicketSharp className="text-white" size={32} />
-                        </div>
-                        <div>
+                        </motion.div>
+                        <motion.div variants={itemVariants}>
                             <h1 className="text-2xl font-black tracking-tight text-white md:text-3xl">
                                 Update Ticket
                             </h1>
                             <p className="mt-1 text-sm text-white/80">
                                 Edit your listed travel ticket information
                             </p>
-                        </div>
+                        </motion.div>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* ✅ Rejected Warning */}
-                {isRejected && (
-                    <div className="mb-6 overflow-hidden rounded-2xl border border-rose-200 bg-rose-50 shadow-lg dark:border-rose-900/30 dark:bg-rose-900/10">
-                        <div className="px-5 py-4">
-                            <p className="text-sm font-bold text-rose-700 dark:text-rose-400">
-                                Rejected tickets cannot be updated.
-                            </p>
-                        </div>
-                    </div>
-                )}
+                <AnimatePresence>
+                    {isRejected && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="mb-6 overflow-hidden rounded-2xl border border-rose-200 bg-rose-50 shadow-lg dark:border-rose-900/30 dark:bg-rose-900/10"
+                        >
+                            <div className="px-5 py-4">
+                                <p className="text-sm font-bold text-rose-700 dark:text-rose-400">
+                                    Rejected tickets cannot be updated.
+                                </p>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                {/* ✅ Error Summary */}
-                {showErrors && Object.keys(errors).length > 0 && (
-                    <div className="mb-6 overflow-hidden rounded-2xl border border-red-200 bg-red-50 shadow-lg dark:border-red-900/30 dark:bg-red-900/10">
-                        <div className="flex items-center gap-3 border-b border-red-200 bg-red-100 px-5 py-3 dark:border-red-900/30 dark:bg-red-900/20">
-                            <IoWarning
-                                size={22}
-                                className="text-red-600 dark:text-red-400"
-                            />
-                            <p className="text-sm font-bold text-red-700 dark:text-red-400">
-                                Please fix the form errors before submitting
-                            </p>
-                        </div>
-                    </div>
-                )}
+                <AnimatePresence>
+                    {showErrors && Object.keys(errors).length > 0 && (
+                        <motion.div
+                            variants={errorBannerVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="overflow-hidden rounded-2xl border border-red-200 bg-red-50 shadow-lg dark:border-red-900/30 dark:bg-red-900/10"
+                        >
+                            <div className="flex items-center gap-3 border-b border-red-200 bg-red-100 px-5 py-3 dark:border-red-900/30 dark:bg-red-900/20">
+                                <motion.div
+                                    animate={{ rotate: [0, -10, 10, 0] }}
+                                    transition={{
+                                        duration: 0.5,
+                                        ease: "easeInOut",
+                                    }}
+                                >
+                                    <IoWarning
+                                        size={22}
+                                        className="text-red-600 dark:text-red-400"
+                                    />
+                                </motion.div>
+                                <p className="text-sm font-bold text-red-700 dark:text-red-400">
+                                    Please fix the form errors before submitting
+                                </p>
+                            </div>
+                            <div className="px-5 py-3">
+                                <ul className="space-y-1.5">
+                                    {Object.entries(errors).map(
+                                        ([field, message], idx) => (
+                                            <motion.li
+                                                key={field}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{
+                                                    delay: idx * 0.05,
+                                                }}
+                                                className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400"
+                                            >
+                                                <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                                                {message}
+                                            </motion.li>
+                                        ),
+                                    )}
+                                </ul>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    {/* ✅ Form Section */}
-                    <div className="lg:col-span-2">
+                    <motion.div
+                        variants={slideInLeft}
+                        initial="hidden"
+                        animate="visible"
+                        className="lg:col-span-2"
+                    >
                         <Surface className="rounded-3xl border border-green-100 bg-white/80 p-6 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5 md:p-8">
                             <Form
                                 onSubmit={handleSubmit}
                                 action=""
                                 className="space-y-8"
                             >
-                                {/* ✅ Section 01 - Basic Info */}
-                                <div>
-                                    <SectionHeader
-                                        icon={IoTicketSharp}
-                                        title="Basic Information"
-                                        step="01"
-                                    />
+                                <motion.div
+                                    variants={containerVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                >
+                                    <motion.div variants={itemVariants}>
+                                        <SectionHeader
+                                            icon={IoTicketSharp}
+                                            title="Basic Information"
+                                            step="01"
+                                        />
+                                    </motion.div>
                                     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                                        {/* Title */}
-                                        <div
+                                        <motion.div
+                                            variants={itemVariants}
                                             className="md:col-span-2"
                                             data-field="title"
                                         >
@@ -328,17 +512,38 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                                                         )
                                                     }
                                                 />
-                                                {errors.title && (
-                                                    <p className="mt-1.5 text-xs font-semibold text-red-500">
-                                                        {errors.title}
-                                                    </p>
-                                                )}
+                                                <AnimatePresence>
+                                                    {errors.title && (
+                                                        <motion.p
+                                                            initial={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                                y: 0,
+                                                            }}
+                                                            exit={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-red-500"
+                                                        >
+                                                            <IoWarning
+                                                                size={14}
+                                                            />
+                                                            {errors.title}
+                                                        </motion.p>
+                                                    )}
+                                                </AnimatePresence>
                                                 <FieldError />
                                             </TextField>
-                                        </div>
+                                        </motion.div>
 
-                                        {/* From */}
-                                        <div data-field="from">
+                                        <motion.div
+                                            variants={itemVariants}
+                                            data-field="from"
+                                        >
                                             <TextField
                                                 name="from"
                                                 isInvalid={!!errors.from}
@@ -358,16 +563,37 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                                                         )
                                                     }
                                                 />
-                                                {errors.from && (
-                                                    <p className="mt-1.5 text-xs font-semibold text-red-500">
-                                                        {errors.from}
-                                                    </p>
-                                                )}
+                                                <AnimatePresence>
+                                                    {errors.from && (
+                                                        <motion.p
+                                                            initial={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                                y: 0,
+                                                            }}
+                                                            exit={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-red-500"
+                                                        >
+                                                            <IoWarning
+                                                                size={14}
+                                                            />
+                                                            {errors.from}
+                                                        </motion.p>
+                                                    )}
+                                                </AnimatePresence>
                                             </TextField>
-                                        </div>
+                                        </motion.div>
 
-                                        {/* To */}
-                                        <div data-field="to">
+                                        <motion.div
+                                            variants={itemVariants}
+                                            data-field="to"
+                                        >
                                             <TextField
                                                 name="to"
                                                 isInvalid={!!errors.to}
@@ -387,84 +613,205 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                                                         )
                                                     }
                                                 />
-                                                {errors.to && (
-                                                    <p className="mt-1.5 text-xs font-semibold text-red-500">
-                                                        {errors.to}
-                                                    </p>
-                                                )}
+                                                <AnimatePresence>
+                                                    {errors.to && (
+                                                        <motion.p
+                                                            initial={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                                y: 0,
+                                                            }}
+                                                            exit={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-red-500"
+                                                        >
+                                                            <IoWarning
+                                                                size={14}
+                                                            />
+                                                            {errors.to}
+                                                        </motion.p>
+                                                    )}
+                                                </AnimatePresence>
                                             </TextField>
-                                        </div>
+                                        </motion.div>
                                     </div>
-                                </div>
+                                </motion.div>
 
-                                {/* ✅ Section 02 - Transport Type */}
-                                <div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 400,
+                                        damping: 25,
+                                    }}
+                                >
                                     <SectionHeader
                                         icon={FaBus}
                                         title="Transport Type"
                                         step="02"
                                     />
                                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                                        {transportOptions.map((option) => {
-                                            const Icon = option.icon;
-                                            const isSelected =
-                                                selectedTransport ===
-                                                option.key;
-                                            return (
-                                                <button
-                                                    type="button"
-                                                    key={option.key}
-                                                    onClick={() =>
-                                                        setSelectedTransport(
-                                                            option.key,
-                                                        )
-                                                    }
-                                                    className={`group relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl border-2 p-4 transition-all ${
-                                                        isSelected
-                                                            ? "border-green-500 bg-green-50 shadow-lg shadow-green-500/20 dark:bg-green-900/20"
-                                                            : "border-zinc-200 bg-zinc-50 hover:border-green-300 dark:border-zinc-700 dark:bg-zinc-800/50"
-                                                    }`}
-                                                >
-                                                    {isSelected && (
-                                                        <span className="absolute right-2 top-2 text-green-500">
-                                                            <FaCircleCheck
-                                                                size={14}
-                                                            />
-                                                        </span>
-                                                    )}
-                                                    <Icon
-                                                        size={26}
-                                                        className={`transition-transform group-hover:scale-110 ${
+                                        {transportOptions.map(
+                                            (option, index) => {
+                                                const Icon = option.icon;
+                                                const isSelected =
+                                                    selectedTransport ===
+                                                    option.key;
+                                                return (
+                                                    <motion.button
+                                                        type="button"
+                                                        key={option.key}
+                                                        onClick={() =>
+                                                            handleTransportChange(
+                                                                option.key,
+                                                            )
+                                                        }
+                                                        initial={{
+                                                            opacity: 0,
+                                                            y: 15,
+                                                        }}
+                                                        animate={{
+                                                            opacity: 1,
+                                                            y: 0,
+                                                        }}
+                                                        transition={{
+                                                            delay: index * 0.08,
+                                                            type: "spring",
+                                                            stiffness: 400,
+                                                            damping: 25,
+                                                        }}
+                                                        whileHover={{
+                                                            scale: 1.03,
+                                                            y: -2,
+                                                        }}
+                                                        whileTap={{
+                                                            scale: 0.97,
+                                                        }}
+                                                        className={`group relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl border-2 p-4 transition-colors ${
                                                             isSelected
-                                                                ? "text-green-600 dark:text-green-400"
-                                                                : "text-zinc-500"
-                                                        }`}
-                                                    />
-                                                    <span
-                                                        className={`text-sm font-semibold ${
-                                                            isSelected
-                                                                ? "text-green-700 dark:text-green-400"
-                                                                : "text-zinc-600 dark:text-zinc-400"
+                                                                ? "border-green-500 bg-green-50 shadow-lg shadow-green-500/20 dark:bg-green-900/20"
+                                                                : "border-zinc-200 bg-zinc-50 hover:border-green-300 dark:border-zinc-700 dark:bg-zinc-800/50"
                                                         }`}
                                                     >
-                                                        {option.label}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
+                                                        <AnimatePresence>
+                                                            {isSelected && (
+                                                                <motion.span
+                                                                    initial={{
+                                                                        opacity: 0,
+                                                                        scale: 0,
+                                                                    }}
+                                                                    animate={{
+                                                                        opacity: 1,
+                                                                        scale: 1,
+                                                                    }}
+                                                                    exit={{
+                                                                        opacity: 0,
+                                                                        scale: 0,
+                                                                    }}
+                                                                    transition={{
+                                                                        type: "spring",
+                                                                        stiffness: 500,
+                                                                        damping: 25,
+                                                                    }}
+                                                                    className="absolute right-2 top-2 text-green-500"
+                                                                >
+                                                                    <FaCircleCheck
+                                                                        size={
+                                                                            14
+                                                                        }
+                                                                    />
+                                                                </motion.span>
+                                                            )}
+                                                        </AnimatePresence>
+                                                        <Icon
+                                                            size={26}
+                                                            className={`transition-transform group-hover:scale-110 ${
+                                                                isSelected
+                                                                    ? "text-green-600 dark:text-green-400"
+                                                                    : "text-zinc-500"
+                                                            }`}
+                                                        />
+                                                        <span
+                                                            className={`text-sm font-semibold ${
+                                                                isSelected
+                                                                    ? "text-green-700 dark:text-green-400"
+                                                                    : "text-zinc-600 dark:text-zinc-400"
+                                                            }`}
+                                                        >
+                                                            {option.label}
+                                                        </span>
+                                                        {isSelected && (
+                                                            <motion.div
+                                                                layoutId="transportHighlightUpdate"
+                                                                className="absolute inset-0 border-2 border-green-500 rounded-2xl"
+                                                                transition={{
+                                                                    type: "spring",
+                                                                    stiffness: 400,
+                                                                    damping: 30,
+                                                                }}
+                                                                style={{
+                                                                    pointerEvents:
+                                                                        "none",
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </motion.button>
+                                                );
+                                            },
+                                        )}
                                     </div>
-                                </div>
+                                    <AnimatePresence>
+                                        {selectedPerks.length > 0 && (
+                                            <motion.p
+                                                initial={{
+                                                    opacity: 0,
+                                                    height: 0,
+                                                }}
+                                                animate={{
+                                                    opacity: 1,
+                                                    height: "auto",
+                                                }}
+                                                exit={{
+                                                    opacity: 0,
+                                                    height: 0,
+                                                }}
+                                                className="mt-3 text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5"
+                                            >
+                                                <IoWarning size={14} />
+                                                Changing transport type will
+                                                reset your selected perks
+                                            </motion.p>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
 
-                                {/* ✅ Section 03 - Pricing & Schedule */}
-                                <div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 400,
+                                        damping: 25,
+                                    }}
+                                >
                                     <SectionHeader
                                         icon={BsTagFill}
                                         title="Pricing & Schedule"
                                         step="03"
                                     />
                                     <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                                        {/* Price */}
-                                        <div data-field="price">
+                                        <motion.div
+                                            variants={itemVariants}
+                                            data-field="price"
+                                        >
                                             <TextField
                                                 name="price"
                                                 isInvalid={!!errors.price}
@@ -486,16 +833,37 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                                                         )
                                                     }
                                                 />
-                                                {errors.price && (
-                                                    <p className="mt-1.5 text-xs font-semibold text-red-500">
-                                                        {errors.price}
-                                                    </p>
-                                                )}
+                                                <AnimatePresence>
+                                                    {errors.price && (
+                                                        <motion.p
+                                                            initial={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                                y: 0,
+                                                            }}
+                                                            exit={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-red-500"
+                                                        >
+                                                            <IoWarning
+                                                                size={14}
+                                                            />
+                                                            {errors.price}
+                                                        </motion.p>
+                                                    )}
+                                                </AnimatePresence>
                                             </TextField>
-                                        </div>
+                                        </motion.div>
 
-                                        {/* Quantity */}
-                                        <div data-field="quantity">
+                                        <motion.div
+                                            variants={itemVariants}
+                                            data-field="quantity"
+                                        >
                                             <TextField
                                                 name="quantity"
                                                 isInvalid={!!errors.quantity}
@@ -516,16 +884,37 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                                                         )
                                                     }
                                                 />
-                                                {errors.quantity && (
-                                                    <p className="mt-1.5 text-xs font-semibold text-red-500">
-                                                        {errors.quantity}
-                                                    </p>
-                                                )}
+                                                <AnimatePresence>
+                                                    {errors.quantity && (
+                                                        <motion.p
+                                                            initial={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                                y: 0,
+                                                            }}
+                                                            exit={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-red-500"
+                                                        >
+                                                            <IoWarning
+                                                                size={14}
+                                                            />
+                                                            {errors.quantity}
+                                                        </motion.p>
+                                                    )}
+                                                </AnimatePresence>
                                             </TextField>
-                                        </div>
+                                        </motion.div>
 
-                                        {/* Departure Date */}
-                                        <div data-field="departureDate">
+                                        <motion.div
+                                            variants={itemVariants}
+                                            data-field="departureDate"
+                                        >
                                             <TextField
                                                 name="departureDate"
                                                 isInvalid={
@@ -551,90 +940,303 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                                                         )
                                                     }
                                                 />
-                                                {errors.departureDate && (
-                                                    <p className="mt-1.5 text-xs font-semibold text-red-500">
-                                                        {errors.departureDate}
-                                                    </p>
-                                                )}
+                                                <AnimatePresence>
+                                                    {errors.departureDate && (
+                                                        <motion.p
+                                                            initial={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                                y: 0,
+                                                            }}
+                                                            exit={{
+                                                                opacity: 0,
+                                                                y: -5,
+                                                            }}
+                                                            className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-red-500"
+                                                        >
+                                                            <IoWarning
+                                                                size={14}
+                                                            />
+                                                            {
+                                                                errors.departureDate
+                                                            }
+                                                        </motion.p>
+                                                    )}
+                                                </AnimatePresence>
                                             </TextField>
-                                        </div>
+                                        </motion.div>
                                     </div>
-                                </div>
+                                </motion.div>
 
-                                {/* ✅ Section 04 - Perks */}
-                                <div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 400,
+                                        damping: 25,
+                                    }}
+                                >
                                     <SectionHeader
                                         icon={AiFillStar}
-                                        title="Perks & Amenities"
+                                        title={`${selectedTransport} Perks & Amenities`}
                                         step="04"
                                     />
-                                    <div className="flex flex-wrap gap-2.5">
-                                        {perksOptions.map((perk) => {
-                                            const isSelected =
-                                                selectedPerks.includes(perk);
-                                            return (
-                                                <button
+                                    <div className="mb-3 flex items-center justify-between">
+                                        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                                            Optional — select perks available
+                                            for{" "}
+                                            <span className="font-bold text-green-600 dark:text-green-400">
+                                                {selectedTransport}
+                                            </span>{" "}
+                                            tickets
+                                        </p>
+                                        <AnimatePresence>
+                                            {selectedPerks.length > 0 && (
+                                                <motion.button
+                                                    initial={{
+                                                        opacity: 0,
+                                                        scale: 0.8,
+                                                    }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        scale: 1,
+                                                    }}
+                                                    exit={{
+                                                        opacity: 0,
+                                                        scale: 0.8,
+                                                    }}
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
                                                     type="button"
-                                                    key={perk}
                                                     onClick={() =>
-                                                        togglePerk(perk)
+                                                        setSelectedPerks([])
                                                     }
-                                                    className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
-                                                        isSelected
-                                                            ? "border-green-500 bg-green-500 text-white shadow-md shadow-green-500/30"
-                                                            : "border-zinc-200 bg-zinc-50 text-zinc-600 hover:border-green-300 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400"
-                                                    }`}
+                                                    className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors"
                                                 >
-                                                    {isSelected && (
-                                                        <FaCircleCheck
-                                                            size={14}
-                                                        />
-                                                    )}
-                                                    {perk}
-                                                </button>
-                                            );
-                                        })}
+                                                    Clear all (
+                                                    {selectedPerks.length})
+                                                </motion.button>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
-                                </div>
+                                    <motion.div
+                                        layout
+                                        className="rounded-2xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700/50 dark:bg-zinc-800/30"
+                                    >
+                                        <div className="mb-3 flex items-center gap-2">
+                                            <TransportIcon
+                                                size={16}
+                                                className="text-green-600 dark:text-green-400"
+                                            />
+                                            <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                                                {selectedTransport} Specific
+                                                Perks
+                                            </span>
+                                            <motion.span
+                                                key={selectedPerks.length}
+                                                initial={{
+                                                    scale: 1.3,
+                                                    color: "#22c55e",
+                                                }}
+                                                animate={{
+                                                    scale: 1,
+                                                    color: "#a1a1aa",
+                                                }}
+                                                transition={{
+                                                    type: "spring",
+                                                    stiffness: 500,
+                                                    damping: 20,
+                                                }}
+                                                className="ml-auto text-[10px] font-bold bg-zinc-200 dark:bg-zinc-700 px-2 py-0.5 rounded-full"
+                                            >
+                                                {selectedPerks.length}/
+                                                {currentPerks.length}
+                                            </motion.span>
+                                        </div>
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={selectedTransport}
+                                                variants={perkContainerVariants}
+                                                initial="hidden"
+                                                animate="visible"
+                                                exit="exit"
+                                                className="flex flex-wrap gap-2.5"
+                                            >
+                                                {currentPerks.map((perk) => {
+                                                    const isSelected =
+                                                        selectedPerks.includes(
+                                                            perk,
+                                                        );
+                                                    return (
+                                                        <motion.button
+                                                            type="button"
+                                                            key={perk}
+                                                            variants={
+                                                                perkItemVariants
+                                                            }
+                                                            onClick={() =>
+                                                                togglePerk(perk)
+                                                            }
+                                                            whileHover={{
+                                                                scale: 1.05,
+                                                                y: -1,
+                                                            }}
+                                                            whileTap={{
+                                                                scale: 0.95,
+                                                            }}
+                                                            layout
+                                                            className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+                                                                isSelected
+                                                                    ? "border-green-500 bg-green-500 text-white shadow-md shadow-green-500/30"
+                                                                    : "border-zinc-200 bg-white text-zinc-600 hover:border-green-300 hover:bg-green-50 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400 dark:hover:border-green-600"
+                                                            }`}
+                                                        >
+                                                            <AnimatePresence>
+                                                                {isSelected && (
+                                                                    <motion.span
+                                                                        initial={{
+                                                                            width: 0,
+                                                                            opacity: 0,
+                                                                        }}
+                                                                        animate={{
+                                                                            width: "auto",
+                                                                            opacity: 1,
+                                                                        }}
+                                                                        exit={{
+                                                                            width: 0,
+                                                                            opacity: 0,
+                                                                        }}
+                                                                        transition={{
+                                                                            duration: 0.2,
+                                                                        }}
+                                                                        className="overflow-hidden"
+                                                                    >
+                                                                        <FaCircleCheck
+                                                                            size={
+                                                                                14
+                                                                            }
+                                                                        />
+                                                                    </motion.span>
+                                                                )}
+                                                            </AnimatePresence>
+                                                            {perk}
+                                                        </motion.button>
+                                                    );
+                                                })}
+                                            </motion.div>
+                                        </AnimatePresence>
+                                    </motion.div>
+                                </motion.div>
 
-                                {/* ✅ Section 05 - Image */}
-                                <div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 400,
+                                        damping: 25,
+                                    }}
+                                >
                                     <SectionHeader
                                         icon={BsImageFill}
                                         title="Ticket Image"
                                         step="05"
                                     />
-                                    <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 p-6 transition-all hover:border-green-400 hover:bg-green-50/50 dark:border-zinc-700 dark:bg-zinc-800/50 dark:hover:border-green-500/50">
-                                        {imagePreview ? (
-                                            <Image
-                                                height={500}
-                                                width={500}
-                                                src={imagePreview}
-                                                alt="Preview"
-                                                className="h-48 w-full rounded-xl object-cover"
-                                            />
-                                        ) : (
-                                            <div className="flex flex-col items-center gap-2 py-6">
-                                                <RiUploadCloud2Fill
-                                                    size={44}
-                                                    className="text-zinc-400"
-                                                />
-                                                <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">
-                                                    Click to upload ticket image
-                                                </p>
-                                            </div>
-                                        )}
+                                    <motion.label
+                                        whileHover={{ scale: 1.01, y: -2 }}
+                                        whileTap={{ scale: 0.99 }}
+                                        className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 p-6 transition-colors hover:border-green-400 hover:bg-green-50/50 dark:border-zinc-700 dark:bg-zinc-800/50 dark:hover:border-green-500/50"
+                                    >
+                                        <AnimatePresence mode="wait">
+                                            {imagePreview ? (
+                                                <motion.div
+                                                    key="preview"
+                                                    initial={{
+                                                        opacity: 0,
+                                                        scale: 0.95,
+                                                    }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        scale: 1,
+                                                    }}
+                                                    exit={{
+                                                        opacity: 0,
+                                                        scale: 0.95,
+                                                    }}
+                                                    transition={{
+                                                        type: "spring",
+                                                        stiffness: 400,
+                                                        damping: 25,
+                                                    }}
+                                                >
+                                                    <Image
+                                                        height={500}
+                                                        width={500}
+                                                        src={imagePreview}
+                                                        alt="Preview"
+                                                        className="h-48 w-full rounded-xl object-cover"
+                                                    />
+                                                </motion.div>
+                                            ) : (
+                                                <motion.div
+                                                    key="placeholder"
+                                                    initial={{
+                                                        opacity: 0,
+                                                        y: 10,
+                                                    }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        y: 0,
+                                                    }}
+                                                    className="flex flex-col items-center gap-2 py-6"
+                                                >
+                                                    <motion.div
+                                                        animate={{
+                                                            y: [0, -5, 0],
+                                                        }}
+                                                        transition={{
+                                                            duration: 2,
+                                                            repeat: Infinity,
+                                                            ease: "easeInOut",
+                                                        }}
+                                                    >
+                                                        <RiUploadCloud2Fill
+                                                            size={44}
+                                                            className="text-zinc-400"
+                                                        />
+                                                    </motion.div>
+                                                    <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+                                                        Click to upload ticket
+                                                        image
+                                                    </p>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                         <input
                                             type="file"
                                             accept="image/*"
                                             onChange={handleImageChange}
                                             className="hidden"
                                         />
-                                    </label>
-                                </div>
+                                    </motion.label>
+                                </motion.div>
 
-                                {/* ✅ Section 06 - Vendor Info */}
-                                <div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 400,
+                                        damping: 25,
+                                    }}
+                                >
                                     <SectionHeader
                                         icon={RiVerifiedBadgeFill}
                                         title="Vendor Information"
@@ -665,153 +1267,341 @@ const UpdateTicketForm = ({ initialTicket, vendor }) => {
                                             />
                                         </div>
                                     </div>
-                                </div>
+                                </motion.div>
 
-                                {/* ✅ Action Buttons */}
-                                <div className="flex justify-end gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-                                    <Button
-                                        type="button"
-                                        variant="tertiary"
-                                        onClick={() =>
-                                            router.push(
-                                                "/dashboard/vendor/my-tickets",
-                                            )
-                                        }
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 400,
+                                        damping: 25,
+                                    }}
+                                    className="flex justify-end gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-800"
+                                >
+                                    <motion.div
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
                                     >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="tertiary"
-                                        onClick={handleReset}
+                                        <Button
+                                            type="button"
+                                            variant="tertiary"
+                                            onClick={() =>
+                                                router.push(
+                                                    "/dashboard/vendor/my-tickets",
+                                                )
+                                            }
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </motion.div>
+                                    <motion.div
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
                                     >
-                                        Reset Changes
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        isDisabled={isLoading || isRejected}
-                                        className="bg-gradient-to-r from-green-500 to-emerald-600 px-8 font-semibold text-white shadow-lg shadow-green-500/30"
+                                        <Button
+                                            type="button"
+                                            variant="tertiary"
+                                            onClick={handleReset}
+                                        >
+                                            Reset Changes
+                                        </Button>
+                                    </motion.div>
+                                    <motion.div
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
                                     >
-                                        <span className="flex items-center gap-2">
-                                            {isLoading
-                                                ? "Updating..."
-                                                : "Update Ticket"}
-                                            {!isLoading && (
-                                                <HiArrowRight size={18} />
-                                            )}
-                                        </span>
-                                    </Button>
-                                </div>
+                                        <Button
+                                            type="submit"
+                                            isDisabled={isLoading || isRejected}
+                                            className="bg-gradient-to-r from-green-500 to-emerald-600 px-8 font-semibold text-white shadow-lg shadow-green-500/30"
+                                        >
+                                            <span className="flex items-center gap-2">
+                                                {isLoading ? (
+                                                    <motion.span
+                                                        animate={{
+                                                            rotate: 360,
+                                                        }}
+                                                        transition={{
+                                                            duration: 1,
+                                                            repeat: Infinity,
+                                                            ease: "linear",
+                                                        }}
+                                                        className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                                                    />
+                                                ) : null}
+                                                {isLoading
+                                                    ? "Updating..."
+                                                    : "Update Ticket"}
+                                                {!isLoading && (
+                                                    <motion.span
+                                                        animate={{
+                                                            x: [0, 3, 0],
+                                                        }}
+                                                        transition={{
+                                                            duration: 1.5,
+                                                            repeat: Infinity,
+                                                            ease: "easeInOut",
+                                                        }}
+                                                    >
+                                                        <HiArrowRight
+                                                            size={18}
+                                                        />
+                                                    </motion.span>
+                                                )}
+                                            </span>
+                                        </Button>
+                                    </motion.div>
+                                </motion.div>
                             </Form>
                         </Surface>
-                    </div>
+                    </motion.div>
 
-                    {/* ✅ Live Preview Section */}
-                    <div className="lg:col-span-1">
+                    <motion.div
+                        variants={slideInRight}
+                        initial="hidden"
+                        animate="visible"
+                        className="lg:col-span-1"
+                    >
                         <div className="sticky top-6">
-                            <p className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                                <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+                            <motion.p
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
+                            >
+                                <motion.span
+                                    animate={{
+                                        scale: [1, 1.3, 1],
+                                        opacity: [1, 0.7, 1],
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                    }}
+                                    className="h-2 w-2 rounded-full bg-green-500"
+                                />
                                 Live Preview
-                            </p>
+                            </motion.p>
 
-                            <div className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
+                            <motion.div
+                                layout
+                                className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+                            >
                                 <div className="relative h-44 w-full bg-gradient-to-br from-green-100 to-emerald-100 dark:from-zinc-800 dark:to-zinc-800">
-                                    {imagePreview ? (
-                                        <Image
-                                            src={imagePreview}
-                                            alt="Preview"
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    ) : (
-                                        <div className="flex h-full items-center justify-center">
-                                            <BsImageFill
-                                                size={40}
-                                                className="text-zinc-300 dark:text-zinc-600"
-                                            />
-                                        </div>
-                                    )}
-
-                                    <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-green-700 shadow-md backdrop-blur-sm dark:bg-zinc-900/90 dark:text-green-400">
+                                    <AnimatePresence mode="wait">
+                                        {imagePreview ? (
+                                            <motion.div
+                                                key="img"
+                                                initial={{
+                                                    opacity: 0,
+                                                    scale: 1.05,
+                                                }}
+                                                animate={{
+                                                    opacity: 1,
+                                                    scale: 1,
+                                                }}
+                                                exit={{ opacity: 0 }}
+                                                transition={{ duration: 0.4 }}
+                                                className="h-full w-full"
+                                            >
+                                                <Image
+                                                    src={imagePreview}
+                                                    alt="Preview"
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                key="placeholder"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                className="flex h-full items-center justify-center"
+                                            >
+                                                <BsImageFill
+                                                    size={40}
+                                                    className="text-zinc-300 dark:text-zinc-600"
+                                                />
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    <motion.div
+                                        layout
+                                        className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-green-700 shadow-md backdrop-blur-sm dark:bg-zinc-900/90 dark:text-green-400"
+                                    >
                                         <TransportIcon size={14} />
                                         {selectedTransport}
-                                    </div>
-
+                                    </motion.div>
                                     <div className="absolute right-3 top-3 rounded-full bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-700 capitalize">
                                         {initialTicket?.verificationStatus ||
                                             "pending"}
                                     </div>
                                 </div>
 
-                                <div className="p-5">
-                                    {/* ✅ formValues থেকে live preview */}
-                                    <h3 className="line-clamp-1 text-lg font-bold text-zinc-900 dark:text-white">
-                                        {formValues.title || "Your Ticket Title"}
-                                    </h3>
-
+                                <motion.div layout className="p-5">
+                                    <AnimatePresence mode="wait">
+                                        <motion.h3
+                                            key={
+                                                formValues.title ||
+                                                "placeholder"
+                                            }
+                                            initial={{ opacity: 0, y: 5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -5 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="line-clamp-1 text-lg font-bold text-zinc-900 dark:text-white"
+                                        >
+                                            {formValues.title ||
+                                                "Your Ticket Title"}
+                                        </motion.h3>
+                                    </AnimatePresence>
                                     <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
-                                        <span className="rounded-lg bg-green-50 px-2 py-1 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                                        <motion.span
+                                            layout
+                                            className="rounded-lg bg-green-50 px-2 py-1 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                                        >
                                             {formValues.from || "From"}
-                                        </span>
-                                        <MdArrowForward className="text-green-500" />
-                                        <span className="rounded-lg bg-green-50 px-2 py-1 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                                        </motion.span>
+                                        <motion.div
+                                            animate={{ x: [0, 3, 0] }}
+                                            transition={{
+                                                duration: 1.5,
+                                                repeat: Infinity,
+                                                ease: "easeInOut",
+                                            }}
+                                        >
+                                            <MdArrowForward className="text-green-500" />
+                                        </motion.div>
+                                        <motion.span
+                                            layout
+                                            className="rounded-lg bg-green-50 px-2 py-1 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                                        >
                                             {formValues.to || "To"}
-                                        </span>
+                                        </motion.span>
                                     </div>
-
                                     <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-4 dark:border-zinc-800">
                                         <div>
                                             <p className="text-xs text-zinc-400">
                                                 Price/unit
                                             </p>
-                                            <p className="flex items-center text-xl font-black text-green-600 dark:text-green-400">
+                                            <motion.p
+                                                key={formValues.price}
+                                                initial={{ scale: 1.1 }}
+                                                animate={{ scale: 1 }}
+                                                className="flex items-center text-xl font-black text-green-600 dark:text-green-400"
+                                            >
                                                 <TbCurrencyTaka size={20} />
                                                 {formValues.price || "0"}
-                                            </p>
+                                            </motion.p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-xs text-zinc-400">
                                                 Available
                                             </p>
-                                            <p className="text-xl font-black text-zinc-900 dark:text-white">
+                                            <motion.p
+                                                key={formValues.quantity}
+                                                initial={{ scale: 1.1 }}
+                                                animate={{ scale: 1 }}
+                                                className="text-xl font-black text-zinc-900 dark:text-white"
+                                            >
                                                 {formValues.quantity || "0"}
-                                            </p>
+                                            </motion.p>
                                         </div>
                                     </div>
-
-                                    {selectedPerks.length > 0 && (
-                                        <div className="mt-4 flex flex-wrap gap-1.5">
-                                            {selectedPerks
-                                                .slice(0, 4)
-                                                .map((perk) => (
-                                                    <span
-                                                        key={perk}
-                                                        className="rounded-full bg-zinc-100 px-2.5 py-1 text-[10px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                                    <AnimatePresence>
+                                        {selectedPerks.length > 0 && (
+                                            <motion.div
+                                                initial={{
+                                                    opacity: 0,
+                                                    height: 0,
+                                                }}
+                                                animate={{
+                                                    opacity: 1,
+                                                    height: "auto",
+                                                }}
+                                                exit={{
+                                                    opacity: 0,
+                                                    height: 0,
+                                                }}
+                                                className="mt-4 flex flex-wrap gap-1.5 overflow-hidden"
+                                            >
+                                                {selectedPerks
+                                                    .slice(0, 4)
+                                                    .map((perk) => (
+                                                        <motion.span
+                                                            key={perk}
+                                                            initial={{
+                                                                opacity: 0,
+                                                                scale: 0.8,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                                scale: 1,
+                                                            }}
+                                                            exit={{
+                                                                opacity: 0,
+                                                                scale: 0.8,
+                                                            }}
+                                                            layout
+                                                            className="rounded-full bg-zinc-100 px-2.5 py-1 text-[10px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                                                        >
+                                                            {perk}
+                                                        </motion.span>
+                                                    ))}
+                                                {selectedPerks.length > 4 && (
+                                                    <motion.span
+                                                        layout
+                                                        className="rounded-full bg-green-100 px-2.5 py-1 text-[10px] font-semibold text-green-700 dark:bg-green-900/20 dark:text-green-400"
                                                     >
-                                                        {perk}
-                                                    </span>
-                                                ))}
-                                            {selectedPerks.length > 4 && (
-                                                <span className="rounded-full bg-green-100 px-2.5 py-1 text-[10px] font-semibold text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                                                    +{selectedPerks.length - 4}{" "}
-                                                    more
-                                                </span>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                                                        +
+                                                        {selectedPerks.length -
+                                                            4}{" "}
+                                                        more
+                                                    </motion.span>
+                                                )}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                                className="mt-4 rounded-2xl border border-green-200 bg-green-50/50 p-4 dark:border-green-900/30 dark:bg-green-900/10"
+                            >
+                                <p className="flex items-start gap-2 text-xs leading-5 text-green-800 dark:text-green-400">
+                                    <FaCircleCheck
+                                        size={14}
+                                        className="mt-0.5 shrink-0"
+                                    />
+                                    Updated ticket will maintain its current
+                                    verification status.
+                                </p>
+                            </motion.div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
 const SectionHeader = ({ icon: Icon, title, step, violet = false }) => (
-    <div className="mb-5 flex items-center gap-3">
-        <div
+    <motion.div
+        initial={{ opacity: 0, x: -15 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        className="mb-5 flex items-center gap-3"
+    >
+        <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
             className={`flex h-9 w-9 items-center justify-center rounded-xl ${
                 violet
                     ? "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
@@ -819,7 +1609,7 @@ const SectionHeader = ({ icon: Icon, title, step, violet = false }) => (
             }`}
         >
             <Icon size={18} />
-        </div>
+        </motion.div>
         <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
                 {title}
@@ -828,7 +1618,7 @@ const SectionHeader = ({ icon: Icon, title, step, violet = false }) => (
                 {step}
             </span>
         </div>
-    </div>
+    </motion.div>
 );
 
 export default UpdateTicketForm;

@@ -22,17 +22,15 @@ export const auth = betterAuth({
         client,
     }),
 
-
     user: {
         additionalFields: {
             isFraud: {
                 type: "boolean",
                 defaultValue: false,
-                input: false, 
+                input: false,
             },
         },
     },
-
 
     plugins: [
         admin({
@@ -58,9 +56,7 @@ export const auth = betterAuth({
                         ) {
                             role = pendingRole;
                         }
-                    } catch (err) {
-
-                    }
+                    } catch (err) {}
 
                     return {
                         data: {
