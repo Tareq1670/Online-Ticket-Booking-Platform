@@ -1,7 +1,11 @@
-import React from 'react';
-
-const myTicketLayout = ({children}) => {
-    return children
+export const metadata = {
+    title: "My Tickets | Ticketix",
+    description:
+        "View and download your purchased tickets, check event timings, and manage your bookings on Ticketix.",
 };
 
-export default myTicketLayout;
+const MyTicketLayout = ({ children }) => {
+    return <>{children}</>;
+};
+
+export default MyTicketLayout;

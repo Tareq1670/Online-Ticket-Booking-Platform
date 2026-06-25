@@ -10,6 +10,8 @@ import { BsList } from "react-icons/bs";
 import { Avatar, Button } from "@heroui/react";
 import { motion, AnimatePresence } from "framer-motion";
 
+
+
 const pageVariants = {
     initial: {
         opacity: 0,

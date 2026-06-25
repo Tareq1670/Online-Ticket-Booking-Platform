@@ -184,34 +184,30 @@ const CardTickets = ({ ticket = {}, index = 0 }) => {
                                 : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
                         }`}
                     >
-                        <div className="flex flex-wrap items-center gap-3">
-                            <span className="font-bold uppercase tracking-wide opacity-80">
+                        <div className="flex items-center justify-between gap-2">
+                            <span className="font-black uppercase tracking-wide opacity-80 text-[10px] flex-shrink-0">
                                 Departure
                             </span>
 
-                            {departureDate && (
-                                <span className="flex items-center gap-1.5">
-                                    <MdDateRange size={15} />
-                                    {departureDate}
-                                </span>
-                            )}
+                            <div className="flex items-center gap-2 min-w-0 flex-shrink">
+                                {departureDate && (
+                                    <span className="flex items-center gap-1 whitespace-nowrap">
+                                        <MdDateRange size={13} className="flex-shrink-0" />
+                                        <span className="truncate">{departureDate}</span>
+                                    </span>
+                                )}
 
-                            {departureDate && departureTime && (
-                                <span className="h-3.5 w-px bg-current opacity-30" />
-                            )}
+                                {departureDate && departureTime && (
+                                    <span className="h-3 w-px bg-current opacity-30 flex-shrink-0" />
+                                )}
 
-                            {departureTime && (
-                                <span className="flex items-center gap-1.5">
-                                    <MdAccessTime size={15} />
-                                    {departureTime}
-                                </span>
-                            )}
-
-                            {departed && (
-                                <span className="ml-auto rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-black uppercase text-red-600 dark:bg-red-900/40 dark:text-red-400">
-                                    Departed
-                                </span>
-                            )}
+                                {departureTime && (
+                                    <span className="flex items-center gap-1 whitespace-nowrap">
+                                        <MdAccessTime size={13} className="flex-shrink-0" />
+                                        <span className="truncate">{departureTime}</span>
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 ) : (
@@ -221,7 +217,7 @@ const CardTickets = ({ ticket = {}, index = 0 }) => {
                     </div>
                 )}
 
-                <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-4 dark:border-white/10">
+                <div className=" flex items-center justify-between border-t border-zinc-100 pt-4 dark:border-white/10">
                     <div>
                         <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                             Price / Unit

@@ -403,7 +403,7 @@ const TransactionHistoryTable = ({
             {/* Stat Cards - Responsive */}
             <motion.div
                 variants={containerVariants}
-                className="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:gap-4 xl:grid-cols-3"
+                className="grid  gap-3 grid-cols-2 sm:gap-4 xl:grid-cols-3"
             >
                 <StatCard
                     title="Total Transactions"
