@@ -1,54 +1,95 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const useRevenueData = (vendorId) => {
+    const router = useRouter();
+
     const [revenueData, setRevenueData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const fetchRevenue = useCallback(async () => {
-        if (!vendorId) {
-            setLoading(false);
-            return;
-        }
-
-        try {
-            setLoading(true);
-            setError(null);
-
-            const baseURL =
-                process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
-            const res = await axios.get(
-                `${baseURL}/api/vendor/revenue-overview`,
-                {
-                    params: { vendorId },
-                },
-            );
-
-            if (res.data?.success) {
-                setRevenueData(res.data.data);
-            } else {
-                setError(res.data?.message || "Failed to load revenue data");
+    const fetchRevenue = useCallback(
+        async (signal) => {
+            if (!vendorId) {
+                setRevenueData(null);
+                setLoading(false);
+                setError(null);
+                return;
             }
-        } catch (err) {
-            const message =
-                err?.response?.data?.message ||
-                err?.message ||
-                "Failed to load revenue data";
-            setError(message);
-        } finally {
-            setLoading(false);
-        }
-    }, [vendorId]);
+
+            try {
+                setLoading(true);
+                setError(null);
+
+                const res = await fetch(
+                    `/api/protected/vendor/revenue-overview?vendorId=${encodeURIComponent(vendorId)}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            Accept: "application/json",
+                        },
+                        credentials: "include",
+                        cache: "no-store",
+                        signal,
+                    },
+                );
+
+                const data = await res.json().catch(() => ({
+                    success: false,
+                    message: "Invalid server response",
+                }));
+
+                if (res.status === 401) {
+                    router.push("/unauthorized");
+                    return;
+                }
+
+                if (res.status === 403) {
+                    router.push("/forbidden");
+                    return;
+                }
+
+                if (!res.ok || !data?.success) {
+                    throw new Error(
+                        data?.message || "Failed to load revenue data",
+                    );
+                }
+
+                setRevenueData(data.data);
+            } catch (err) {
+                if (err.name === "AbortError") return;
+
+                setError(err.message || "Failed to load revenue data");
+            } finally {
+                if (!signal?.aborted) {
+                    setLoading(false);
+                }
+            }
+        },
+        [vendorId, router],
+    );
 
     useEffect(() => {
-        fetchRevenue();
+        const controller = new AbortController();
+        fetchRevenue(controller.signal);
+
+        return () => controller.abort();
     }, [fetchRevenue]);
 
-    return { revenueData, loading, error, refetch: fetchRevenue };
+    const refetch = useCallback(() => {
+        const controller = new AbortController();
+        fetchRevenue(controller.signal);
+        return () => controller.abort();
+    }, [fetchRevenue]);
+
+    return {
+        revenueData,
+        loading,
+        error,
+        refetch,
+    };
 };
 
 export default useRevenueData;

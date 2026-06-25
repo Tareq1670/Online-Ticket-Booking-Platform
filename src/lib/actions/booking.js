@@ -1,4 +1,5 @@
-import { serverMutation } from "../core/server";
+import { serverMutation } from "../core/client";
+
 
 export const createBooking = async (data) => {
     return serverMutation("/api/bookings", data, "POST");

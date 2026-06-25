@@ -99,7 +99,7 @@ const RevenuePage = () => {
                 key="revenue"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="p-4 md:p-6 lg:p-8 space-y-7 max-w-7xl mx-auto"
+                className="p-4 md:p-6 lg:p-8 space-y-7 mx-auto"
             >
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}

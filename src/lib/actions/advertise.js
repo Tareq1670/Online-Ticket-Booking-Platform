@@ -1,6 +1,7 @@
-"use server";
+import { serverMutation } from "../core/client";
 
-import { serverMutation } from "../core/server";
+
+
 
 
 export const toggleAdvertise = async (ticketId, isAdvertised) => {

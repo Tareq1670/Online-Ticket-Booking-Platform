@@ -1,4 +1,5 @@
-import { serverMutation } from "../core/server"
+import { serverMutation } from "../core/client";
+
 
 export const updateRole = async(userId, role) => {
     return serverMutation(`/api/users/${userId}/role`, {role}, "PATCH")

@@ -608,7 +608,7 @@ const AddTicketPage = () => {
             transition={{ duration: 0.4 }}
             className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 px-4 py-8 dark:from-[#070B14] dark:via-[#0A0F1C] dark:to-[#06140C] md:px-8"
         >
-            <div className="mx-auto max-w-7xl">
+            <div className="mx-auto">
                 <motion.div
                     variants={heroVariants}
                     initial="hidden"

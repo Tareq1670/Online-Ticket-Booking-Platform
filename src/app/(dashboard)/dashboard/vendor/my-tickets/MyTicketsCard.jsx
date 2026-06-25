@@ -8,8 +8,8 @@ import { FaPlus } from "react-icons/fa6";
 import { HiMiniSquares2X2 } from "react-icons/hi2";
 import { MdBlock } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
-import { deleteMyAddedTicket } from "@/lib/actions/ticket";
 import MyAddedTicketCard from "./MyAddedTicketCard";
+import { deleteMyAddedTicket } from "@/lib/actions/ticket";
 
 const MyTicketsCard = ({ initialTickets, vendorId, isFraud = false }) => {
     const [tickets, setTickets] = useState(
@@ -58,7 +58,7 @@ const MyTicketsCard = ({ initialTickets, vendorId, isFraud = false }) => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-8 dark:from-[#070B14] dark:via-[#0A0F1C] dark:to-[#06140C] md:px-8">
-            <div className="mx-auto max-w-7xl">
+            <div className="mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: -30 }}
                     animate={{ opacity: 1, y: 0 }}
