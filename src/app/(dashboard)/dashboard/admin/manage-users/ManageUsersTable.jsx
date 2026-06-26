@@ -300,6 +300,7 @@ const ConfirmActionDialog = ({
                         className="fixed inset-0 bg-black/70 backdrop-blur-md"
                         onClick={handleClose}
                         aria-hidden="true"
+                        style={{ cursor: "pointer" }}
                     />
                     <motion.div
                         variants={modalContentVariants}
@@ -322,7 +323,7 @@ const ConfirmActionDialog = ({
                                 aria-label="Close"
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700 disabled:opacity-50 sm:right-5 sm:top-5 dark:bg-gray-800/80 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                                className="absolute right-4 top-4 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:right-5 sm:top-5 dark:bg-gray-800/80 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                             >
                                 <FiX className="text-base" />
                             </motion.button>
@@ -369,7 +370,7 @@ const ConfirmActionDialog = ({
                                     onClick={handleClose}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
-                                    className="h-12 w-full rounded-2xl border border-gray-200 bg-gray-100 px-6 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 sm:h-11 sm:w-auto sm:min-w-[120px] dark:border-gray-700/60 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    className="h-12 w-full cursor-pointer rounded-2xl border border-gray-200 bg-gray-100 px-6 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:w-auto sm:min-w-[120px] dark:border-gray-700/60 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
                                     Cancel
                                 </motion.button>
@@ -379,7 +380,7 @@ const ConfirmActionDialog = ({
                                     onClick={handleConfirm}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
-                                    className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-6 text-sm font-black text-white shadow-lg transition-colors disabled:opacity-70 sm:h-11 sm:w-auto sm:min-w-[160px] ${confirmButtonClassName}`}
+                                    className={`inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl px-6 text-sm font-black text-white shadow-lg transition-colors disabled:cursor-not-allowed disabled:opacity-70 sm:h-11 sm:w-auto sm:min-w-[160px] ${confirmButtonClassName}`}
                                 >
                                     {loading && (
                                         <motion.svg
@@ -426,7 +427,7 @@ const ConfirmActionDialog = ({
                 onClick={() => setOpen(true)}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className={`inline-flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50 ${triggerClassName}`}
+                className={`inline-flex cursor-pointer items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50 ${triggerClassName}`}
             >
                 {confirmLoading ? (
                     <motion.svg
@@ -708,20 +709,20 @@ const ManageUsersTable = ({
             : "flex flex-wrap items-center gap-2";
 
         const adminBtn = isMobile
-            ? "h-10 w-full justify-center rounded-xl bg-gradient-to-r from-[#064E3B] via-[#059669] to-[#22C55E] px-4 font-black text-white text-sm shadow-lg shadow-emerald-600/25"
-            : "h-9 rounded-xl bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 px-3 text-xs font-black text-white shadow-lg shadow-emerald-600/25";
+            ? "h-10 w-full justify-center rounded-xl bg-gradient-to-r from-[#064E3B] via-[#059669] to-[#22C55E] px-4 font-black text-white text-sm shadow-lg shadow-emerald-600/25 cursor-pointer"
+            : "h-9 rounded-xl bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 px-3 text-xs font-black text-white shadow-lg shadow-emerald-600/25 cursor-pointer";
 
         const vendorBtn = isMobile
-            ? "h-10 w-full justify-center rounded-xl bg-gradient-to-r from-[#3F6212] via-[#65A30D] to-[#10B981] px-4 font-black text-white text-sm shadow-lg shadow-lime-600/25"
-            : "h-9 rounded-xl bg-gradient-to-r from-lime-600 via-green-500 to-emerald-500 px-3 text-xs font-black text-white shadow-lg shadow-green-500/25";
+            ? "h-10 w-full justify-center rounded-xl bg-gradient-to-r from-[#3F6212] via-[#65A30D] to-[#10B981] px-4 font-black text-white text-sm shadow-lg shadow-lime-600/25 cursor-pointer"
+            : "h-9 rounded-xl bg-gradient-to-r from-lime-600 via-green-500 to-emerald-500 px-3 text-xs font-black text-white shadow-lg shadow-green-500/25 cursor-pointer";
 
         const fraudBtn = isMobile
-            ? "h-10 w-full justify-center rounded-xl bg-gradient-to-r from-[#DC2626] via-[#B91C1C] to-[#7F1D1D] px-4 font-black text-white text-sm shadow-lg shadow-red-500/25"
-            : "h-9 rounded-xl bg-gradient-to-r from-red-600 to-red-800 px-3 text-xs font-black text-white shadow-lg shadow-red-500/25";
+            ? "h-10 w-full justify-center rounded-xl bg-gradient-to-r from-[#DC2626] via-[#B91C1C] to-[#7F1D1D] px-4 font-black text-white text-sm shadow-lg shadow-red-500/25 cursor-pointer"
+            : "h-9 rounded-xl bg-gradient-to-r from-red-600 to-red-800 px-3 text-xs font-black text-white shadow-lg shadow-red-500/25 cursor-pointer";
 
         const restoreBtn = isMobile
-            ? "h-10 w-full justify-center rounded-xl bg-gradient-to-r from-[#064E3B] via-[#059669] to-[#22C55E] px-4 font-black text-white text-sm shadow-lg shadow-emerald-600/25"
-            : "h-9 rounded-xl bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 px-3 text-xs font-black text-white shadow-lg shadow-emerald-600/25";
+            ? "h-10 w-full justify-center rounded-xl bg-gradient-to-r from-[#064E3B] via-[#059669] to-[#22C55E] px-4 font-black text-white text-sm shadow-lg shadow-emerald-600/25 cursor-pointer"
+            : "h-9 rounded-xl bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 px-3 text-xs font-black text-white shadow-lg shadow-emerald-600/25 cursor-pointer";
 
         return (
             <div className={wrap}>
@@ -1071,14 +1072,14 @@ const ManageUsersTable = ({
                                     placeholder="Search name or email..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="h-11 w-full rounded-2xl border border-emerald-200/90 bg-white/95 pl-10 pr-4 text-sm font-semibold text-[#052E16] caret-emerald-600 outline-none transition placeholder:text-emerald-600/55 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
+                                    className="h-11 w-full cursor-text rounded-2xl border border-emerald-200/90 bg-white/95 pl-10 pr-4 text-sm font-semibold text-[#052E16] caret-emerald-600 outline-none transition placeholder:text-emerald-600/55 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
                                 />
                             </motion.div>
                             <motion.select
                                 variants={filterItemVariants}
                                 value={roleFilter}
                                 onChange={(e) => setRoleFilter(e.target.value)}
-                                className="h-11 w-full rounded-2xl border border-emerald-200/90 bg-white/95 px-4 text-sm font-bold text-[#052E16] outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
+                                className="h-11 w-full cursor-pointer rounded-2xl border border-emerald-200/90 bg-white/95 px-4 text-sm font-bold text-[#052E16] outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
                             >
                                 <option value="all">All Roles</option>
                                 <option value="user">Users</option>
@@ -1091,7 +1092,7 @@ const ManageUsersTable = ({
                                 onChange={(e) =>
                                     setStatusFilter(e.target.value)
                                 }
-                                className="h-11 w-full rounded-2xl border border-emerald-200/90 bg-white/95 px-4 text-sm font-bold text-[#052E16] outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
+                                className="h-11 w-full cursor-pointer rounded-2xl border border-emerald-200/90 bg-white/95 px-4 text-sm font-bold text-[#052E16] outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
                             >
                                 <option value="all">All Status</option>
                                 <option value="active">Active</option>
@@ -1107,7 +1108,7 @@ const ManageUsersTable = ({
                                     setRoleFilter("all");
                                     setStatusFilter("all");
                                 }}
-                                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 px-4 font-black text-white shadow-lg shadow-emerald-700/25 transition-colors hover:opacity-90 sm:col-span-2 xl:col-span-1"
+                                className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 px-4 font-black text-white shadow-lg shadow-emerald-700/25 transition-colors hover:opacity-90 sm:col-span-2 xl:col-span-1"
                             >
                                 <motion.div
                                     whileHover={{ rotate: 180 }}

@@ -593,7 +593,8 @@ const Navbar = () => {
 
                                 {isLoading && <MobileDashboardSkeleton />}
 
-                                <button
+                                <Button
+                                variant="none"
                                     onClick={toggleTheme}
                                     className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[15px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
                                 >
@@ -613,7 +614,7 @@ const Navbar = () => {
                                     {mounted && isDark
                                         ? "Light Mode"
                                         : "Dark Mode"}
-                                </button>
+                                </Button>
                             </div>
 
                             <div className="my-4 border-t border-zinc-100 dark:border-zinc-800" />
@@ -654,7 +655,8 @@ const Navbar = () => {
                                         My Profile
                                     </Link>
 
-                                    <button
+                                    <Button
+                                        variant="none"
                                         onClick={handleLogout}
                                         className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[15px] font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
                                     >
@@ -662,7 +664,7 @@ const Navbar = () => {
                                             <ArrowRightFromSquare size={18} />
                                         </span>
                                         Logout
-                                    </button>
+                                    </Button>
                                 </div>
                             )}
                         </div>

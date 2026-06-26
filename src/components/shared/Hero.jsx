@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -17,6 +18,7 @@ import {
     RiArrowLeftSLine,
     RiArrowRightSLine,
 } from "react-icons/ri";
+import { motion, AnimatePresence } from "framer-motion";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -92,10 +94,72 @@ const heroSlides = [
     },
 ];
 
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.15,
+            delayChildren: 0.2,
+        },
+    },
+    exit: {
+        opacity: 0,
+        transition: { duration: 0.3 },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 40, filter: "blur(8px)" },
+    visible: {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    },
+    exit: {
+        opacity: 0,
+        y: -20,
+        filter: "blur(6px)",
+        transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+    },
+};
+
+const buttonVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            duration: 0.6,
+            ease: [0.22, 1, 0.36, 1],
+            delay: 0.6,
+        },
+    },
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.25 } },
+};
+
 const HeroSlider = () => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const swiperRef = useRef(null);
+
+    const handleMouseEnter = () => {
+        if (swiperRef.current?.autoplay) {
+            swiperRef.current.autoplay.stop();
+        }
+    };
+
+    const handleMouseLeave = () => {
+        if (swiperRef.current?.autoplay) {
+            swiperRef.current.autoplay.start();
+        }
+    };
+
     return (
-        <section className="w-full mt-16 rounded-b-lg overflow-hidden shadow-2xl shadow-green-900/10 group">
+        <section className="w-full mt-16 rounded-b-lg overflow-hidden shadow-2xl shadow-green-900/10 group relative">
             <Swiper
+                onSwiper={(swiper) => (swiperRef.current = swiper)}
                 modules={[
                     Autoplay,
                     Pagination,
@@ -112,13 +176,15 @@ const HeroSlider = () => {
                 autoplay={{
                     delay: 5500,
                     disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
+                    pauseOnMouseEnter: false,
+                    waitForTransition: false,
                 }}
                 pagination={{
                     clickable: true,
                     bulletClass:
                         "inline-block w-2.5 h-2.5 rounded-full bg-white/30 mx-1.5 cursor-pointer transition-all duration-500",
-                    bulletActiveClass: "!bg-green-500 !w-8 !shadow-lg !shadow-green-500/50",
+                    bulletActiveClass:
+                        "!bg-green-500 !w-8 !shadow-lg !shadow-green-500/50",
                     el: ".hero-pagination",
                 }}
                 navigation={{
@@ -126,72 +192,153 @@ const HeroSlider = () => {
                     prevEl: ".hero-swiper-prev",
                 }}
                 speed={800}
+                onSlideChange={(s) => setActiveIndex(s.realIndex)}
                 className="w-full min-h-[50vh] sm:min-h-[58vh] md:min-h-[75vh] lg:min-h-[88vh]"
             >
                 {heroSlides.map((slide, index) => (
-                    <SwiperSlide key={slide.id} className="relative overflow-hidden">
-                        <Image
-                            src={slide.bgImage}
-                            alt={slide.title}
-                            fill
-                            sizes="100vw"
-                            priority={index === 0}
-                            loading={index === 0 ? "eager" : "lazy"}
-                            className="object-cover z-0 scale-105 animate-[kenburns_20s_ease-in-out_infinite_alternate] group-hover:[animation-play-state:paused]"
-                        />
+                    <SwiperSlide
+                        key={slide.id}
+                        className="relative overflow-hidden"
+                    >
+                        <motion.div
+                            initial={{ scale: 1.15 }}
+                            animate={{
+                                scale: activeIndex === index ? 1.02 : 1.15,
+                            }}
+                            transition={{
+                                duration: 7,
+                                ease: "easeOut",
+                            }}
+                            className="absolute inset-0 z-0"
+                        >
+                            <Image
+                                src={slide.bgImage}
+                                alt={slide.title}
+                                fill
+                                sizes="100vw"
+                                priority={index === 0}
+                                loading={index === 0 ? "eager" : "lazy"}
+                                className="object-cover"
+                            />
+                        </motion.div>
 
                         <div className="absolute inset-0 bg-gradient-to-r from-green-950/85 via-black/60 to-black/20 z-10" />
                         <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/70 to-transparent z-10" />
 
                         <div className="relative z-20 h-full min-h-[50vh] sm:min-h-[58vh] md:min-h-[75vh] lg:min-h-[88vh] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center py-10 sm:py-12 md:py-0">
-                            <Chip
-                                variant="shadow"
-                                color="success"
-                                radius="full"
-                                size="lg"
-                                className="mb-4 w-fit !bg-white/10 backdrop-blur-xl border border-white/20 text-white font-medium hover:scale-[1.02] transition-all"
-                            >
-                                {slide.badge}
-                            </Chip>
+                            <AnimatePresence mode="wait">
+                                {activeIndex === index && (
+                                    <motion.div
+                                        key={`slide-content-${slide.id}`}
+                                        variants={containerVariants}
+                                        initial="hidden"
+                                        animate="visible"
+                                        exit="exit"
+                                        className="flex flex-col"
+                                    >
+                                        <motion.div variants={itemVariants}>
+                                            <Chip
+                                                variant="shadow"
+                                                color="success"
+                                                radius="full"
+                                                size="lg"
+                                                className="mb-4 w-fit !bg-white/10 backdrop-blur-xl border border-white/20 text-white font-medium hover:scale-[1.02] transition-all"
+                                            >
+                                                {slide.badge}
+                                            </Chip>
+                                        </motion.div>
 
-                            <h1 className="text-[clamp(1.6rem,6vw,3.7rem)] font-bold text-white leading-[1.2] max-w-3xl mb-4 text-shadow">
-                                {slide.title}
-                            </h1>
+                                        <motion.h1
+                                            variants={itemVariants}
+                                            className="text-[clamp(1.6rem,6vw,3.7rem)] font-bold text-white leading-[1.2] max-w-3xl mb-4 text-shadow"
+                                        >
+                                            {slide.title
+                                                .split(" ")
+                                                .map((word, i) => (
+                                                    <motion.span
+                                                        key={i}
+                                                        initial={{
+                                                            opacity: 0,
+                                                            y: 30,
+                                                            filter: "blur(8px)",
+                                                        }}
+                                                        animate={{
+                                                            opacity: 1,
+                                                            y: 0,
+                                                            filter: "blur(0px)",
+                                                        }}
+                                                        transition={{
+                                                            duration: 0.5,
+                                                            delay:
+                                                                0.4 + i * 0.05,
+                                                            ease: [
+                                                                0.22, 1, 0.36, 1,
+                                                            ],
+                                                        }}
+                                                        className="inline-block mr-[0.25em]"
+                                                    >
+                                                        {word}
+                                                    </motion.span>
+                                                ))}
+                                        </motion.h1>
 
-                            <p className="text-sm sm:text-base md:text-lg text-zinc-200 max-w-2xl mb-6 sm:mb-8 leading-relaxed text-shadow">
-                                {slide.subtitle}
-                            </p>
+                                        <motion.p
+                                            variants={itemVariants}
+                                            className="text-sm sm:text-base md:text-lg text-zinc-200 max-w-2xl mb-6 sm:mb-8 leading-relaxed text-shadow"
+                                        >
+                                            {slide.subtitle}
+                                        </motion.p>
 
-                            <Button
-                                as={Link}
-                                href={slide.ctaLink}
-                                size="lg"
-                                radius="lg"
-                                className="w-full sm:w-fit font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-600/30 hover:shadow-green-600/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                endContent={<RiArrowRightLine size={18} />}
-                            >
-                                {slide.ctaText}
-                            </Button>
+                                        <motion.div
+                                            variants={buttonVariants}
+                                            whileHover={{
+                                                scale: 1.04,
+                                                transition: { duration: 0.2 },
+                                            }}
+                                            whileTap={{ scale: 0.97 }}
+                                            className="w-full sm:w-fit"
+                                        >
+                                            <Button
+                                                as={Link}
+                                                href={slide.ctaLink}
+                                                size="lg"
+                                                radius="lg"
+                                                className="w-full sm:w-fit font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-600/30 hover:shadow-green-600/50 transition-all"
+                                                endContent={
+                                                    <RiArrowRightLine
+                                                        size={18}
+                                                    />
+                                                }
+                                            >
+                                                {slide.ctaText}
+                                            </Button>
+                                        </motion.div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                     </SwiperSlide>
                 ))}
 
-                <Button
-                    isIconOnly
-                    variant="ghost"
+                <button
+                    type="button"
                     aria-label="Previous slide"
-                    className="hero-swiper-prev hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 w-11 h-11 !bg-white/10 backdrop-blur-md !border-white/20 text-white hover:!bg-green-600 hover:!border-green-600 transition-all opacity-0 group-hover:opacity-100"
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    className="hero-swiper-prev hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-xl items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-green-600 hover:border-green-600 transition-all opacity-0 group-hover:opacity-100 cursor-pointer hover:scale-110 active:scale-95"
                 >
                     <RiArrowLeftSLine size={22} />
-                </Button>
-                <Button
-                    isIconOnly
-                    variant="ghost"
+                </button>
+
+                <button
+                    type="button"
                     aria-label="Next slide"
-                    className="hero-swiper-next hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-30 w-11 h-11 !bg-white/10 backdrop-blur-md !border-white/20 text-white hover:!bg-green-600 hover:!border-green-600 transition-all opacity-0 group-hover:opacity-100"
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    className="hero-swiper-next hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-xl items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-green-600 hover:border-green-600 transition-all opacity-0 group-hover:opacity-100 cursor-pointer hover:scale-110 active:scale-95"
                 >
                     <RiArrowRightSLine size={22} />
-                </Button>
+                </button>
 
                 <div className="hero-pagination absolute bottom-4 sm:bottom-6 left-0 right-0 z-30 flex justify-center" />
             </Swiper>

@@ -37,17 +37,53 @@ const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+        transition: { staggerChildren: 0.12, delayChildren: 0.15 },
+    },
+};
+
+const infoCardVariants = {
+    hidden: { opacity: 0, x: -40, filter: "blur(8px)" },
+    visible: {
+        opacity: 1,
+        x: 0,
+        filter: "blur(0px)",
+        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    },
+};
+
+const featureCardVariants = {
+    hidden: { opacity: 0, y: 40, scale: 0.95, filter: "blur(6px)" },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        filter: "blur(0px)",
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
     },
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 28 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
         opacity: 1,
         y: 0,
         transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
     },
+};
+
+const statVariants = {
+    hidden: { opacity: 0, scale: 0.7, y: 20 },
+    visible: (i) => ({
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        transition: {
+            delay: 0.5 + i * 0.1,
+            type: "spring",
+            stiffness: 280,
+            damping: 18,
+        },
+    }),
 };
 
 const WhyChooseUs = () => {
@@ -64,12 +100,31 @@ const WhyChooseUs = () => {
                 }}
             />
 
-            <div
+            <motion.div
                 aria-hidden
+                animate={{
+                    scale: [1, 1.15, 1],
+                    opacity: [0.4, 0.7, 0.4],
+                }}
+                transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                }}
                 className="pointer-events-none absolute -top-20 -left-20 w-72 h-72 rounded-full bg-green-500/10 blur-3xl"
             />
-            <div
+            <motion.div
                 aria-hidden
+                animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.4, 0.7, 0.4],
+                }}
+                transition={{
+                    duration: 7,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 1.5,
+                }}
                 className="pointer-events-none absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl"
             />
 
@@ -77,44 +132,86 @@ const WhyChooseUs = () => {
                 <motion.div
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
+                    viewport={{ once: true, amount: 0.15 }}
                     variants={containerVariants}
                     className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6"
                 >
                     <motion.div
-                        variants={itemVariants}
+                        variants={infoCardVariants}
                         className="lg:row-span-2 flex items-center"
                     >
-                        <div className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 lg:p-10 shadow-sm">
-                            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-semibold uppercase tracking-wider bg-green-500/10 text-green-700 dark:text-green-300 ring-1 ring-green-500/20">
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                        <motion.div
+                            whileHover={{ y: -4 }}
+                            transition={{
+                                type: "spring",
+                                stiffness: 260,
+                                damping: 22,
+                            }}
+                            className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 lg:p-10 shadow-sm hover:shadow-xl hover:shadow-green-500/10 transition-shadow"
+                        >
+                            <motion.span
+                                variants={itemVariants}
+                                whileHover={{ scale: 1.05 }}
+                                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-semibold uppercase tracking-wider bg-green-500/10 text-green-700 dark:text-green-300 ring-1 ring-green-500/20 cursor-default"
+                            >
+                                <motion.span
+                                    animate={{
+                                        scale: [1, 1.4, 1],
+                                        opacity: [1, 0.6, 1],
+                                    }}
+                                    transition={{
+                                        duration: 1.6,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                    }}
+                                    className="w-1.5 h-1.5 rounded-full bg-green-500"
+                                />
                                 Why Choose Us
-                            </span>
+                            </motion.span>
 
-                            <h2 className="mt-5 text-3xl md:text-4xl lg:text-[40px] font-extrabold leading-[1.15] tracking-tight text-zinc-900 dark:text-white">
+                            <motion.h2
+                                variants={itemVariants}
+                                className="mt-5 text-3xl md:text-4xl lg:text-[40px] font-extrabold leading-[1.15] tracking-tight text-zinc-900 dark:text-white"
+                            >
                                 Travel Smarter{" "}
                                 <span className="text-green-500">
                                     With Ticketix
                                 </span>
-                            </h2>
+                            </motion.h2>
 
-                            <p className="mt-5 text-[15px] leading-relaxed text-zinc-600 dark:text-zinc-400">
+                            <motion.p
+                                variants={itemVariants}
+                                className="mt-5 text-[15px] leading-relaxed text-zinc-600 dark:text-zinc-400"
+                            >
                                 Book bus, train, launch and flight tickets from
                                 a single platform. Verified vendors, instant
                                 confirmations, real-time updates and secure
                                 payments — everything you need for a stress-free
                                 journey across Bangladesh.
-                            </p>
+                            </motion.p>
 
                             <div className="mt-7 grid grid-cols-3 gap-4">
                                 {[
                                     { value: "50K+", label: "Happy Users" },
                                     { value: "1.2K+", label: "Routes" },
                                     { value: "99%", label: "On-time" },
-                                ].map((stat) => (
-                                    <div
+                                ].map((stat, i) => (
+                                    <motion.div
                                         key={stat.label}
-                                        className="rounded-xl bg-zinc-50 dark:bg-zinc-800/60 px-3 py-3 text-center ring-1 ring-zinc-100 dark:ring-zinc-800"
+                                        custom={i}
+                                        variants={statVariants}
+                                        whileHover={{
+                                            scale: 1.06,
+                                            y: -3,
+                                            backgroundColor:
+                                                "rgba(16,185,129,0.08)",
+                                        }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 300,
+                                            damping: 18,
+                                        }}
+                                        className="rounded-xl bg-zinc-50 dark:bg-zinc-800/60 px-3 py-3 text-center ring-1 ring-zinc-100 dark:ring-zinc-800 cursor-default"
                                     >
                                         <p className="text-lg font-extrabold text-zinc-900 dark:text-white">
                                             {stat.value}
@@ -122,10 +219,10 @@ const WhyChooseUs = () => {
                                         <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mt-0.5">
                                             {stat.label}
                                         </p>
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
                     </motion.div>
 
                     {features.map((feature) => {
@@ -135,20 +232,44 @@ const WhyChooseUs = () => {
                         return (
                             <motion.div
                                 key={feature.title}
-                                variants={itemVariants}
-                                whileHover={{ y: -6 }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 280,
-                                    damping: 22,
+                                variants={featureCardVariants}
+                                whileHover={{
+                                    y: -8,
+                                    transition: {
+                                        type: "spring",
+                                        stiffness: 280,
+                                        damping: 22,
+                                    },
                                 }}
-                                className={`group relative rounded-2xl p-6 lg:p-7 border transition-all ${
+                                className={`group relative rounded-2xl p-6 lg:p-7 border transition-colors overflow-hidden ${
                                     highlighted
                                         ? "bg-gradient-to-br from-green-500 to-emerald-600 border-transparent text-white shadow-xl shadow-green-500/25"
                                         : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-green-500/40 dark:hover:border-green-500/40 hover:shadow-lg hover:shadow-green-500/10"
                                 }`}
                             >
-                                <div
+                                {highlighted && (
+                                    <motion.div
+                                        animate={{
+                                            x: ["-100%", "200%"],
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: "easeInOut",
+                                            repeatDelay: 3,
+                                        }}
+                                        aria-hidden
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent skew-x-12 pointer-events-none"
+                                    />
+                                )}
+
+                                <motion.div
+                                    whileHover={{ scale: 1.15, rotate: 8 }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 320,
+                                        damping: 14,
+                                    }}
                                     className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                                         highlighted
                                             ? "bg-white/20 text-white"
@@ -156,7 +277,7 @@ const WhyChooseUs = () => {
                                     }`}
                                 >
                                     <Icon size={22} />
-                                </div>
+                                </motion.div>
 
                                 <h3
                                     className={`mt-5 text-lg font-bold tracking-tight ${
@@ -178,19 +299,32 @@ const WhyChooseUs = () => {
                                     {feature.description}
                                 </p>
 
-                                <button
+                                <motion.button
                                     type="button"
-                                    className={`mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold transition-all ${
+                                    whileHover={{ x: 4 }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 320,
+                                        damping: 18,
+                                    }}
+                                    className={`mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold ${
                                         highlighted
-                                            ? "text-white hover:gap-2.5"
-                                            : "text-green-600 dark:text-green-400 hover:gap-2.5"
+                                            ? "text-white"
+                                            : "text-green-600 dark:text-green-400"
                                     }`}
                                 >
                                     Learn more
-                                    <span className="transition-transform group-hover:translate-x-0.5">
+                                    <motion.span
+                                        animate={{ x: [0, 4, 0] }}
+                                        transition={{
+                                            duration: 1.6,
+                                            repeat: Infinity,
+                                            ease: "easeInOut",
+                                        }}
+                                    >
                                         →
-                                    </span>
-                                </button>
+                                    </motion.span>
+                                </motion.button>
 
                                 {highlighted && (
                                     <div

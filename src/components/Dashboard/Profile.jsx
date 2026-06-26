@@ -34,6 +34,9 @@ const roleConfig = {
         borderColor: "border-rose-200 dark:border-rose-900/50",
         iconBg: "bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400",
         ring: "ring-rose-500/30",
+        statusBg:
+            "bg-gradient-to-br from-rose-50 to-orange-50 dark:from-zinc-900 dark:to-zinc-900",
+        statusBorder: "border-rose-200 dark:border-rose-800/40",
     },
     vendor: {
         label: "Vendor",
@@ -49,6 +52,9 @@ const roleConfig = {
         borderColor: "border-violet-200 dark:border-violet-900/50",
         iconBg: "bg-violet-100 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400",
         ring: "ring-violet-500/30",
+        statusBg:
+            "bg-gradient-to-br from-violet-50 to-purple-50 dark:from-zinc-900 dark:to-zinc-900",
+        statusBorder: "border-violet-200 dark:border-violet-800/40",
     },
     user: {
         label: "User",
@@ -64,6 +70,9 @@ const roleConfig = {
         borderColor: "border-green-200 dark:border-green-900/50",
         iconBg: "bg-green-100 text-green-600 dark:bg-green-950/40 dark:text-green-400",
         ring: "ring-green-500/30",
+        statusBg:
+            "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-zinc-900 dark:to-zinc-900",
+        statusBorder: "border-green-200 dark:border-green-800/40",
     },
 };
 
@@ -94,19 +103,6 @@ const containerVariants = {
         transition: {
             staggerChildren: 0.1,
             delayChildren: 0.05,
-        },
-    },
-};
-
-const itemVariants = {
-    hidden: { opacity: 0, y: 25 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            type: "spring",
-            stiffness: 400,
-            damping: 25,
         },
     },
 };
@@ -150,20 +146,6 @@ const avatarVariants = {
             stiffness: 350,
             damping: 20,
             delay: 0.2,
-        },
-    },
-};
-
-const cardVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.97 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        transition: {
-            type: "spring",
-            stiffness: 400,
-            damping: 25,
         },
     },
 };
@@ -248,6 +230,17 @@ const ProfilePage = () => {
                 >
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.25),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.18),transparent_35%)]" />
 
+                    <motion.div
+                        animate={{ x: ["-100%", "200%"] }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            repeatDelay: 3,
+                        }}
+                        className="pointer-events-none absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/15 to-transparent skew-x-12"
+                    />
+
                     <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                         <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:text-left">
                             <motion.div
@@ -295,9 +288,7 @@ const ProfilePage = () => {
                                         className={`relative flex aspect-square h-24 w-24 items-center justify-center rounded-full bg-white/20 text-3xl font-black text-white shadow-2xl ring-4 ring-white/80 sm:h-28 sm:w-28 md:h-36 md:w-36 md:text-4xl ${config.ring}`}
                                     >
                                         <h2 className="text-2xl">
-                                            {getInitials(
-                                                user?.name?.slice("")[0]
-                                            )}
+                                            {getInitials(user?.name)}
                                         </h2>
                                     </motion.div>
                                 )}
@@ -413,7 +404,7 @@ const ProfilePage = () => {
 
                                 <div className="min-w-0">
                                     <p className="text-[10px] font-semibold uppercase tracking-wider text-white/70 sm:text-xs">
-                                        TicketBari
+                                        Ticketix
                                     </p>
                                     <p className="truncate text-base font-black sm:text-lg">
                                         {config.title}
@@ -612,33 +603,52 @@ const ProfilePage = () => {
                                     stiffness: 400,
                                     damping: 20,
                                 }}
-                                className={`rounded-2xl border ${config.borderColor} bg-gradient-to-br ${config.softGradient} p-4`}
+                                className={`relative overflow-hidden rounded-2xl border ${config.statusBorder} ${config.statusBg} p-4`}
                             >
-                                <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                                <motion.div
+                                    animate={{ x: ["-100%", "200%"] }}
+                                    transition={{
+                                        duration: 3.5,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                        repeatDelay: 2.5,
+                                    }}
+                                    className="pointer-events-none absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 dark:via-white/[0.04]"
+                                />
+
+                                <p className="relative text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-300">
                                     Current Status
                                 </p>
 
-                                <div className="mt-3 flex items-center gap-2">
+                                <div className="relative mt-3 flex items-center gap-2">
                                     <motion.span
                                         animate={{
                                             scale: [1, 1.3, 1],
                                             opacity: [1, 0.7, 1],
+                                            boxShadow: [
+                                                "0 0 0 0 rgba(34,197,94,0.4)",
+                                                "0 0 0 8px rgba(34,197,94,0)",
+                                                "0 0 0 0 rgba(34,197,94,0.4)",
+                                            ],
                                         }}
                                         transition={{
                                             duration: 2,
                                             repeat: Infinity,
                                             ease: "easeInOut",
                                         }}
-                                        className="h-3 w-3 shrink-0 rounded-full bg-green-500 shadow-lg shadow-green-500/40"
+                                        className="h-3 w-3 shrink-0 rounded-full bg-green-500"
                                     />
                                     <span className="font-black text-zinc-900 dark:text-white">
                                         Active Account
                                     </span>
                                 </div>
 
-                                <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-                                    This profile is currently active on
-                                    TicketBari.
+                                <p className="relative mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                                    This profile is currently active on{" "}
+                                    <span className="font-semibold text-zinc-900 dark:text-white">
+                                        Ticketix
+                                    </span>
+                                    .
                                 </p>
                             </motion.div>
                         </motion.div>
@@ -682,7 +692,7 @@ const InfoField = ({
                         size={15}
                     />
                 </motion.div>
-                <p className="truncate text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                <p className="truncate text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-300">
                     {label}
                 </p>
             </div>

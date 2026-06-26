@@ -10,7 +10,7 @@ const BookingRequestsPage = async () => {
     const initialBookings = data?.data || [];
 
     return (
-        <div className="w-full  mx-auto px-4 py-6">
+        <div className="w-full  mx-auto py-6">
             <RequestedBookingsTable initialBookings={initialBookings} />
         </div>
     );

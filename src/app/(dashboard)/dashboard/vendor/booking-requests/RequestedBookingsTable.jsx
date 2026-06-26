@@ -420,7 +420,7 @@ const ConfirmActionDialog = ({
                                     type="button"
                                     disabled={isProcessing}
                                     onClick={onClose}
-                                    className="h-12 w-full rounded-2xl border border-gray-200 bg-gray-100 px-6 text-sm font-black text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 sm:h-11 sm:w-auto sm:min-w-[120px] dark:border-gray-700/60 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    className="h-12 w-full rounded-2xl border border-gray-200 bg-gray-100 px-6 text-sm font-black text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 sm:h-11 sm:w-auto sm:min-w-[120px] dark:border-gray-700/60 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 cursor-pointer"
                                 >
                                     Keep Pending
                                 </motion.button>
@@ -430,7 +430,7 @@ const ConfirmActionDialog = ({
                                     type="button"
                                     disabled={isProcessing}
                                     onClick={onConfirm}
-                                    className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-6 text-sm font-black text-white shadow-lg transition-colors disabled:opacity-70 sm:h-11 sm:w-auto sm:min-w-[160px] ${
+                                    className={`inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl px-6 text-sm font-black text-white shadow-lg transition-colors disabled:opacity-70 sm:h-11 sm:w-auto sm:min-w-[160px] ${
                                         isAccept
                                             ? "bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 hover:opacity-90 shadow-emerald-600/30"
                                             : "bg-gradient-to-r from-red-600 to-red-700 hover:opacity-90 shadow-red-600/30"
@@ -569,20 +569,36 @@ const BookingRequestsClient = ({ initialBookings, vendorId }) => {
 
     const getUserName = (b) =>
         b?.user?.name ||
+        b?.userInfo?.[0]?.name ||
         b?.userName ||
         b?.userEmail?.split("@")?.[0] ||
         "Unknown User";
 
-    const getUserEmail = (b) => b?.user?.email || b?.userEmail || "N/A";
+    const getUserEmail = (b) =>
+        b?.user?.email || b?.userInfo?.[0]?.email || b?.userEmail || "N/A";
 
-    const getUserAvatar = (b) =>
-        normalizeImageUrl(
-            b?.userImage ||
-                b?.user?.image ||
-                b?.user?.photoURL ||
-                b?.userAvatar ||
-                "",
-        );
+    const getUserAvatar = (b) => {
+        const possiblePaths = [
+            b?.user?.image,
+            b?.user?.photoURL,
+            b?.user?.avatar,
+            b?.user?.profileImage,
+            b?.userInfo?.[0]?.image,
+            b?.userInfo?.[0]?.photoURL,
+            b?.userInfo?.[0]?.avatar,
+            b?.userImage,
+            b?.userAvatar,
+            b?.userPhoto,
+            b?.image,
+        ];
+
+        for (const path of possiblePaths) {
+            const normalized = normalizeImageUrl(path);
+            if (normalized) return normalized;
+        }
+
+        return "";
+    };
 
     const uniqueTitles = useMemo(() => {
         const titles = new Set();
@@ -846,7 +862,6 @@ const BookingRequestsClient = ({ initialBookings, vendorId }) => {
                         />
                         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                             <div>
-                                
                                 <motion.h1
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -1376,30 +1391,14 @@ const BookingRequestsClient = ({ initialBookings, vendorId }) => {
                                                             </div>
                                                         </motion.div>
                                                     </Table.Cell>
-                                                    <Table.Cell>
-                                                        {""}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {""}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {""}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {""}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {""}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {""}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {""}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {""}
-                                                    </Table.Cell>
+                                                    <Table.Cell>{""}</Table.Cell>
+                                                    <Table.Cell>{""}</Table.Cell>
+                                                    <Table.Cell>{""}</Table.Cell>
+                                                    <Table.Cell>{""}</Table.Cell>
+                                                    <Table.Cell>{""}</Table.Cell>
+                                                    <Table.Cell>{""}</Table.Cell>
+                                                    <Table.Cell>{""}</Table.Cell>
+                                                    <Table.Cell>{""}</Table.Cell>
                                                 </Table.Row>
                                             ) : (
                                                 filteredBookings.map(

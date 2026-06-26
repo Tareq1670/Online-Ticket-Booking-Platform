@@ -304,7 +304,11 @@ const AdvertiseToggle = ({ isOn, loading, onToggle, disabled }) => {
             disabled={loading || disabled}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={`relative inline-flex h-8 w-[52px] shrink-0 cursor-pointer items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`relative inline-flex h-8 w-[52px] shrink-0 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-4 disabled:opacity-50 ${
+                disabled && !isOn
+                    ? "cursor-not-allowed"
+                    : "cursor-pointer"
+            } ${
                 isOn
                     ? "bg-gradient-to-r from-emerald-500 to-green-400 shadow-lg shadow-emerald-500/30 focus:ring-emerald-500/20"
                     : "bg-gray-200 shadow-inner focus:ring-gray-300/30 dark:bg-gray-700"
@@ -736,7 +740,7 @@ const AdvertiseTicketsTable = ({ tickets: initialTickets }) => {
                                     placeholder="Search title, from, to..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="h-11 w-full rounded-2xl border border-emerald-200/90 bg-white/95 pl-10 pr-4 text-sm font-semibold text-[#052E16] caret-emerald-600 outline-none transition placeholder:text-emerald-600/55 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
+                                    className="h-11 w-full cursor-text rounded-2xl border border-emerald-200/90 bg-white/95 pl-10 pr-4 text-sm font-semibold text-[#052E16] caret-emerald-600 outline-none transition placeholder:text-emerald-600/55 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
                                 />
                             </motion.div>
                             <motion.select
@@ -745,7 +749,7 @@ const AdvertiseTicketsTable = ({ tickets: initialTickets }) => {
                                 onChange={(e) =>
                                     setTransportFilter(e.target.value)
                                 }
-                                className="h-11 w-full rounded-2xl border border-emerald-200/90 bg-white/95 px-4 text-sm font-bold text-[#052E16] outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
+                                className="h-11 w-full cursor-pointer rounded-2xl border border-emerald-200/90 bg-white/95 px-4 text-sm font-bold text-[#052E16] outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
                             >
                                 <option value="all">All Transport</option>
                                 <option value="bus">Bus</option>
@@ -759,7 +763,7 @@ const AdvertiseTicketsTable = ({ tickets: initialTickets }) => {
                                 onChange={(e) =>
                                     setAdvertiseFilter(e.target.value)
                                 }
-                                className="h-11 w-full rounded-2xl border border-emerald-200/90 bg-white/95 px-4 text-sm font-bold text-[#052E16] outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
+                                className="h-11 w-full cursor-pointer rounded-2xl border border-emerald-200/90 bg-white/95 px-4 text-sm font-bold text-[#052E16] outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-emerald-800/70 dark:bg-[#081C13] dark:text-emerald-50"
                             >
                                 <option value="all">All Status</option>
                                 <option value="advertised">Advertised</option>
@@ -777,7 +781,7 @@ const AdvertiseTicketsTable = ({ tickets: initialTickets }) => {
                                     setTransportFilter("all");
                                     setAdvertiseFilter("all");
                                 }}
-                                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 px-4 font-black text-white shadow-lg shadow-emerald-700/25 transition-colors hover:opacity-90 sm:col-span-2 xl:col-span-1"
+                                className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#064E3B] via-emerald-600 to-green-500 px-4 font-black text-white shadow-lg shadow-emerald-700/25 transition-colors hover:opacity-90 sm:col-span-2 xl:col-span-1"
                             >
                                 <motion.div
                                     whileHover={{ rotate: 180 }}

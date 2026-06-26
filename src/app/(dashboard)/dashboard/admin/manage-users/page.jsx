@@ -6,7 +6,7 @@ const ManageUsersPage = async () => {
   const { users } = await getUsersList();
 
   return (
-    <div className="p-6">
+    <div className="">
       <ManageUsersTable users={users} />
     </div>
   );
